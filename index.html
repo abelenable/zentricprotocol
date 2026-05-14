@@ -108,7 +108,7 @@
     @media(max-width:640px){.nav-status span{display:none}}
 
     /* HERO */
-    .hero{position:relative;min-height:100vh;padding:160px 0 100px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
+    .hero{position:relative;min-height:100vh;padding:160px 0 100px;display:flex;flex-direction:column;justify-content:space-between;overflow:visible}
     .hero-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(to right,rgba(245,245,245,0.022) 1px,transparent 1px),linear-gradient(to bottom,rgba(245,245,245,0.022) 1px,transparent 1px);background-size:100px 100px;mask-image:radial-gradient(ellipse 70% 60% at 50% 40%,black 30%,transparent 95%);-webkit-mask-image:radial-gradient(ellipse 70% 60% at 50% 40%,black 30%,transparent 95%)}
     .hero-spotlight{position:absolute;width:1000px;height:1000px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,194,0.04) 0%,rgba(245,245,245,0.02) 30%,transparent 60%);pointer-events:none;transform:translate(-50%,-50%);transition:left 0.5s cubic-bezier(0.16,1,0.3,1),top 0.5s cubic-bezier(0.16,1,0.3,1);mix-blend-mode:plus-lighter}
     .hero-content{position:relative;z-index:2;display:flex;flex-direction:column;gap:72px;flex:1;justify-content:center}
@@ -120,10 +120,10 @@
     .eyebrow-meta{font-family:var(--mono);font-size:11px;letter-spacing:0.22em;color:var(--ink-60);text-transform:uppercase}
 
     /* HEADLINE */
-    .headline{font-size:clamp(52px,9.5vw,168px);font-weight:700;line-height:0.88;letter-spacing:-0.054em;max-width:1280px}
-    .hl{display:block;overflow:hidden}
-    .hl span{display:inline-block;background:linear-gradient(180deg,#F5F5F5 0%,#F5F5F5 65%,rgba(245,245,245,0.7) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;opacity:0;transform:translateY(100%)}
-    .hl.dim span{background:linear-gradient(180deg,rgba(245,245,245,0.35) 0%,rgba(245,245,245,0.2) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .headline{font-size:clamp(56px,9vw,160px);font-weight:700;line-height:1.15;letter-spacing:-0.054em;max-width:1280px;overflow:visible}
+    .hl{display:block;overflow:visible}
+    .hl span{display:inline-block;background:linear-gradient(180deg,#ffffff 0%,#ffffff 55%,rgba(255,255,255,0.55) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;opacity:0;transform:translateY(20px);padding-right:0.08em}
+    .hl.dim span{background:linear-gradient(180deg,rgba(255,255,255,0.38) 0%,rgba(255,255,255,0.18) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;padding-right:0.08em}
     .hl:nth-child(1) span{animation:headlineUp 1s cubic-bezier(0.16,1,0.3,1) 0.25s forwards}
     .hl:nth-child(2) span{animation:headlineUp 1s cubic-bezier(0.16,1,0.3,1) 0.40s forwards}
     .hl:nth-child(3) span{animation:headlineUp 1s cubic-bezier(0.16,1,0.3,1) 0.55s forwards}
@@ -247,7 +247,7 @@
 
     /* ANIMATIONS */
     @keyframes slideUp{from{opacity:0;transform:translateY(20px);filter:blur(6px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
-    @keyframes headlineUp{from{opacity:0;transform:translateY(100%)}to{opacity:1;transform:translateY(0)}}
+    @keyframes headlineUp{from{opacity:0;transform:translateY(20px);filter:blur(4px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
     @keyframes ping{0%{transform:scale(1);opacity:1}100%{transform:scale(2.8);opacity:0}}
     @keyframes barIn{from{transform:translateX(-100%)}to{transform:translateX(0)}}
     @keyframes scrollDown{0%{transform:translateY(-100%)}100%{transform:translateY(400%)}}
@@ -289,7 +289,7 @@
       <a class="nav-link" href="#protocol">Protocol</a>
       <a class="nav-link" href="#capabilities">Specification</a>
       <a class="nav-link" href="#evidence">Research</a>
-      <a class="nav-link" href="mailto:core@zentricprotocol.com">Documentation</a>
+      <a class="nav-link" href="#pricing">Pricing</a>
     </div>
     <div class="nav-status">
       <div class="nav-dot"></div>
@@ -316,10 +316,9 @@
       </div>
 
       <h1 class="headline">
-        <span class="hl"><span>Foundational</span></span>
-        <span class="hl dim"><span>security logic.</span></span>
-        <span class="hl"><span>Advanced integrity</span></span>
-        <span class="hl dim"><span>at protocol scale.</span></span>
+        <span class="hl"><span>Integrity</span></span>
+        <span class="hl dim"><span>infrastructure.</span></span>
+        <span class="hl"><span>AI era.</span></span>
       </h1>
 
       <div class="hero-bottom">
@@ -496,17 +495,125 @@
 </section>
 
 <!-- CTA -->
+<!-- PRICING -->
+<section class="section" id="pricing">
+  <div class="frame">
+    <div class="section-meta">
+      <span class="section-id">§04 / PRICING</span>
+      <span class="section-name">Access</span>
+    </div>
+    <div class="section-head reveal">
+      <h2 class="section-title">Infrastructure<br><em>pricing.</em></h2>
+      <p class="section-body">Two tiers. No hidden fees. Cancel anytime. Enterprise contracts available annually with EU data residency guarantee and dedicated SLA.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:8px;overflow:hidden" class="reveal reveal-d1">
+
+      <!-- GROWTH -->
+      <div style="background:#0A0A0A;padding:48px 40px;display:flex;flex-direction:column;gap:0">
+        <div style="font-family:var(--mono);font-size:10px;letter-spacing:0.2em;color:var(--ink-40);text-transform:uppercase;margin-bottom:24px">GROWTH</div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
+          <span style="font-family:var(--display);font-size:64px;font-weight:700;letter-spacing:-0.04em;line-height:1">$499</span>
+          <span style="font-family:var(--mono);font-size:13px;color:var(--ink-40)">/month</span>
+        </div>
+        <p style="font-size:13px;color:var(--ink-60);margin-bottom:40px;line-height:1.6">For AI-forward companies deploying LLMs in production with real user data.</p>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:14px;margin-bottom:48px">
+          <li style="display:flex;gap:12px;align-items:flex-start">
+            <span style="color:var(--kinetic);font-size:13px;margin-top:1px;flex-shrink:0">✓</span>
+            <span style="font-size:13px;color:var(--ink-60)">IntegrityGuard — 22 injection signatures, 7 languages</span>
+          </li>
+          <li style="display:flex;gap:12px;align-items:flex-start">
+            <span style="color:var(--kinetic);font-size:13px;margin-top:1px;flex-shrink:0">✓</span>
+            <span style="font-size:13px;color:var(--ink-60)">PrivacyGuard — 17 PII entity types, multilingual</span>
+          </li>
+          <li style="display:flex;gap:12px;align-items:flex-start">
+            <span style="color:var(--kinetic);font-size:13px;margin-top:1px;flex-shrink:0">✓</span>
+            <span style="font-size:13px;color:var(--ink-60)">ZentricReport — UUID, SHA-256, audit-grade JSON</span>
+          </li>
+          <li style="display:flex;gap:12px;align-items:flex-start">
+            <span style="color:var(--kinetic);font-size:13px;margin-top:1px;flex-shrink:0">✓</span>
+            <span style="font-size:13px;color:var(--ink-60)">Up to 100,000 requests / month</span>
+          </li>
+          <li style="display:flex;gap:12px;align-items:flex-start">
+            <span style="color:var(--kinetic);font-size:13px;margin-top:1px;flex-shrink:0">✓</span>
+            <span style="font-size:13px;color:var(--ink-60)">GDPR · CCPA · EU AI Act compliant</span>
+          </li>
+          <li style="display:flex;gap:12px;align-items:flex-start">
+            <span style="color:var(--kinetic);font-size:13px;margin-top:1px;flex-shrink:0">✓</span>
+            <span style="font-size:13px;color:var(--ink-60)">REST API + SDK documentation</span>
+          </li>
+        </ul>
+        <a href="https://buy.stripe.com/6oUeVebMY0Y94mM0blco000" class="btn btn-primary" style="text-align:center;justify-content:center;margin-top:auto">
+          Start Growth — $499/mo
+        </a>
+      </div>
+
+      <!-- ENTERPRISE -->
+      <div style="background:#0d0d0d;padding:48px 40px;display:flex;flex-direction:column;gap:0;position:relative">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:var(--kinetic);box-shadow:0 0 12px var(--kinetic)"></div>
+        <div style="font-family:var(--mono);font-size:10px;letter-spacing:0.2em;color:var(--kinetic);text-transform:uppercase;margin-bottom:24px">ENTERPRISE</div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
+          <span style="font-family:var(--display);font-size:64px;font-weight:700;letter-spacing:-0.04em;line-height:1">$2,500</span>
+          <span style="font-family:var(--mono);font-size:13px;color:var(--ink-40)">/month</span>
+        </div>
+        <p style="font-size:13px;color:var(--ink-60);margin-bottom:40px;line-height:1.6">For regulated industries and enterprise deployments requiring audit-grade guarantees.</p>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:14px;margin-bottom:48px">
+          <li style="display:flex;gap:12px;align-items:flex-start">
+            <span style="color:var(--kinetic);font-size:13px;margin-top:1px;flex-shrink:0">✓</span>
+            <span style="font-size:13px;color:var(--ink-60)">Everything in Growth, unlimited requests</span>
+          </li>
+          <li style="display:flex;gap:12px;align-items:flex-start">
+            <span style="color:var(--kinetic);font-size:13px;margin-top:1px;flex-shrink:0">✓</span>
+            <span style="font-size:13px;color:var(--ink-60)">EU data residency — zero cross-border transfer</span>
+          </li>
+          <li style="display:flex;gap:12px;align-items:flex-start">
+            <span style="color:var(--kinetic);font-size:13px;margin-top:1px;flex-shrink:0">✓</span>
+            <span style="font-size:13px;color:var(--ink-60)">Integrity Certificate generation (PDF, signed)</span>
+          </li>
+          <li style="display:flex;gap:12px;align-items:flex-start">
+            <span style="color:var(--kinetic);font-size:13px;margin-top:1px;flex-shrink:0">✓</span>
+            <span style="font-size:13px;color:var(--ink-60)">Dedicated SLA — sub-100ms P99 guaranteed</span>
+          </li>
+          <li style="display:flex;gap:12px;align-items:flex-start">
+            <span style="color:var(--kinetic);font-size:13px;margin-top:1px;flex-shrink:0">✓</span>
+            <span style="font-size:13px;color:var(--ink-60)">GDPR Art.30 records + DPA included</span>
+          </li>
+          <li style="display:flex;gap:12px;align-items:flex-start">
+            <span style="color:var(--kinetic);font-size:13px;margin-top:1px;flex-shrink:0">✓</span>
+            <span style="font-size:13px;color:var(--ink-60)">Priority support + custom integrations</span>
+          </li>
+        </ul>
+        <a href="https://buy.stripe.com/cNiaEY5oAcGRaLa8HRco001" class="btn btn-kinetic" style="text-align:center;justify-content:center;margin-top:auto">
+          Start Enterprise — $2,500/mo
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Annual note -->
+    <div style="text-align:center;margin-top:24px" class="reveal reveal-d2">
+      <p style="font-family:var(--mono);font-size:11px;color:var(--ink-40);letter-spacing:0.08em">
+        Annual contracts available · EU invoicing · <a href="mailto:core@zentricprotocol.com" style="color:var(--ink-60);text-decoration:none">core@zentricprotocol.com</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
 <section class="cta-section">
   <div class="frame">
     <div class="reveal">
       <h2 class="cta-title">The protocol is open.<br><em>Access is selective.</em></h2>
       <p class="cta-body">Zentric Protocol operates under invitation. Request access if your infrastructure requires integrity guarantees at audit grade.</p>
       <div class="cta-actions">
-        <a href="mailto:core@zentricprotocol.com" class="btn btn-primary">
+        <a href="https://buy.stripe.com/6oUeVebMY0Y94mM0blco000" class="btn btn-primary">
           <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l6 3v4c0 3-2.5 5.5-6 6-3.5-.5-6-3-6-6V4l6-3z"/></svg>
-          Request access
+          Start Growth — $499/mo
         </a>
-        <a href="mailto:core@zentricprotocol.com" class="btn btn-ghost">core@zentricprotocol.com</a>
+        <a href="https://buy.stripe.com/cNiaEY5oAcGRaLa8HRco001" class="btn btn-kinetic">
+          Enterprise — $2,500/mo
+        </a>
+        <a href="mailto:core@zentricprotocol.com" class="btn btn-ghost">Contact us</a>
       </div>
     </div>
   </div>
