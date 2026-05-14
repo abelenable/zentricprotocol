@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://zentricprotocol.com/sitemap.xml
+Host: https://zentricprotocol.com
