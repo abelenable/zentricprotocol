@@ -200,7 +200,7 @@
     .bento>div:hover{background:rgba(245,245,245,0.025)}
     .b-6{grid-column:span 6}.b-4{grid-column:span 4}.b-8{grid-column:span 8}.b-3{grid-column:span 3}.b-tall{grid-row:span 2}.b-full{grid-column:span 12}
     @media(max-width:900px){.bento{grid-template-columns:repeat(2,1fr)}.b-6,.b-4,.b-8,.b-3,.b-full{grid-column:span 2}}
-    @media(max-width:540px){.bento{grid-template-columns:1fr}.b-6,.b-4,.b-8,.b-3,.b-full{grid-column:span 1}}
+    @media(max-width:540px){.bento{grid-template-columns:1fr}.b-6,.b-4,.b-8,.b-3,.b-full{grid-column:span 1}}@media(max-width:720px){#pricing-grid{grid-template-columns:1fr!important}}
     .b-num{font-family:var(--mono);font-size:10px;letter-spacing:0.2em;color:var(--ink-40);text-transform:uppercase;margin-bottom:18px}
     .b-title{font-size:22px;font-weight:700;letter-spacing:-0.02em;line-height:1.2;margin-bottom:14px}
     .b-body{font-size:13px;color:var(--ink-60);line-height:1.6;font-family:var(--mono);margin-bottom:auto}
@@ -507,7 +507,7 @@
       <p class="section-body">Two tiers. No hidden fees. Cancel anytime. Enterprise contracts available annually with EU data residency guarantee and dedicated SLA.</p>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:8px;overflow:hidden" class="reveal reveal-d1">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:8px;overflow:hidden" id="pricing-grid" class="reveal reveal-d1">
 
       <!-- GROWTH -->
       <div style="background:#0A0A0A;padding:48px 40px;display:flex;flex-direction:column;gap:0">
