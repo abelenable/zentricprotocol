@@ -54,7 +54,7 @@ We accept contributions to the middleware, webhook handler, and Supabase schema.
 
 | Tier | Price | Requests | Start |
 |---|---|---|---|
-| **Free Trial** | Free | 500 requests | [Get API key →](https://zentricprotocol.com#api-access) |
+| **Free Trial** | Free | 2,000 requests | [Get API key →](https://zentricprotocol.com#api-access) |
 | **Growth** | $499/mo | 100,000 req/mo | [Start Growth →](https://buy.stripe.com/6oUeVebMY0Y94mM0blco000) |
 | **Enterprise** | $2,500/mo | Unlimited | [Start Enterprise →](https://buy.stripe.com/cNiaEY5oAcGRaLa8HRco001) |
 
@@ -107,6 +107,12 @@ Extracted from **Zentric Integrity Report v1.0** — 1,000,000 simulations acros
 | **Total** | **529,000** | **528,992** | **99.62%** |
 
 > Full methodology and raw data available on request: [core@zentricprotocol.com](mailto:core@zentricprotocol.com)
+
+### Benchmark Methodology
+
+The 1,000,000-simulation corpus was constructed from four sources: (1) published prompt injection research datasets (PINT Benchmark, PromptBench, garak); (2) adversarial samples hand-authored across 22 attack categories to stress-test edge cases not present in public datasets; (3) synthetically mutated variants of known attack patterns — character substitution, whitespace injection, Unicode normalization attacks, and mixed-language payloads — to measure robustness against obfuscation; and (4) benign control samples drawn from production-representative traffic to verify precision does not degrade under normal use. The final split is approximately 53% attack samples and 47% benign controls. Simulations were run deterministically: the same corpus against a frozen signature set, with no retraining or tuning between runs.
+
+**What this benchmark does not cover:** adversarial inputs specifically constructed to defeat these 22 signatures after reading this repository (signatures are partially public, which is a known trade-off of transparency); semantic prompt injections that do not match any current signature pattern and rely entirely on model misinterpretation; non-English languages beyond the seven supported (EN, ES, FR, DE, IT, PT, NL); and multi-turn conversation-level attacks where the injection is distributed across several messages. The precision figures above reflect deterministic pattern matching — not an ML classifier, not a generalization claim. Zentric is honest about what it detects and what it does not.
 
 ---
 
@@ -215,7 +221,7 @@ Zentric Protocol is designed from the ground up for regulated AI deployments.
 
 | Standard | Coverage |
 |---|---|
-| **GDPR Art. 30** | Record of processing activities generated per request |
+| **GDPR Art. 30** | Reproducible audit record per request — one component of an Art.30 documentation strategy |
 | **GDPR Art. 25** | Privacy by design — anonymization as default |
 | **CCPA §1798.100** | Consumer data identification and processing record |
 | **EU AI Act §52** | Transparency obligations resolved at infrastructure level |
