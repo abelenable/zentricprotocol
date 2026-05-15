@@ -9,7 +9,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-const FREE_TIER_LIMIT = 500;
+const FREE_TIER_LIMIT = 2000;
 
 function generateApiKey() {
   const random = crypto.randomBytes(24).toString('hex');
@@ -35,7 +35,7 @@ async function sendWelcomeEmail(email, apiKey) {
     body: JSON.stringify({
       from: 'Zentric Protocol <core@zentricprotocol.com>',
       to: email,
-      subject: 'Your Zentric Protocol API key — 500 free requests',
+      subject: 'Your Zentric Protocol API key — 2,000 free requests',
       html: `
 <!DOCTYPE html>
 <html>
@@ -63,7 +63,7 @@ async function sendWelcomeEmail(email, apiKey) {
                 Your API key is ready.
               </h1>
               <p style="margin:12px 0 0;font-size:15px;color:rgba(245,245,245,0.6);line-height:1.6;">
-                500 free requests. No credit card required. Save this key — it won't be shown again.
+                2,000 free requests. No credit card required. Save this key — it won't be shown again.
               </p>
             </td>
           </tr>

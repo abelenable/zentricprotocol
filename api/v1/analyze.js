@@ -15,7 +15,7 @@ const supabase = createClient(
 
 // ─── CONSTANTS ───────────────────────────────────────────────────────────────
 
-const FREE_TIER_LIMIT = 500;
+const FREE_TIER_LIMIT = 2000;
 
 // ─── INJECTION SIGNATURES (22) ───────────────────────────────────────────────
 // Covers direct override attempts, role injection, token smuggling,
