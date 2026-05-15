@@ -237,6 +237,15 @@
     .scroll-line{width:1px;height:40px;background:linear-gradient(180deg,var(--rule) 0%,transparent 100%);position:relative;overflow:hidden}
     .scroll-line::after{content:'';position:absolute;top:0;left:0;width:100%;height:12px;background:var(--paper);animation:scrollDown 2.4s cubic-bezier(0.4,0,0.2,1) infinite}
     @media(max-width:640px){.scroll-ind{display:none}}
+    @media(max-width:640px){
+      .hero{padding:80px 0 48px;min-height:unset}
+      .hero-content{gap:32px}
+      .headline{font-size:clamp(36px,10vw,160px)}
+      .hero-bottom{padding-top:20px;gap:20px}
+      .subhead{font-size:15px;max-width:100%}
+      .cta-row{flex-direction:column;align-items:flex-start}
+      .btn{width:100%;justify-content:center}
+    }
 
     /* SECTIONS */
     .section{padding:140px 0;border-top:1px solid var(--rule);position:relative}
