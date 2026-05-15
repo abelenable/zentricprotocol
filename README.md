@@ -28,6 +28,38 @@
 
 ---
 
+## Repository Scope & Commercial License
+
+This repository exists for **transparency and contribution** — not as a deployable alternative to the hosted service.
+
+| What's in this repo | What's not in this repo |
+|---|---|
+| Authentication middleware (`/middleware`) | IntegrityGuard detection engine |
+| Stripe webhook handler (`/api/webhooks`) | PrivacyGuard NLP classification layer |
+| Supabase schema & migrations (`/supabase`) | Signature database (22 injection vectors) |
+| API interface contracts & response shapes | Model weights and training data |
+| Landing page & documentation (`index.html`) | Audit record signing infrastructure |
+
+**Cloning this repository does not give you access to the Zentric processing service.** The detection engine that inspects prompts, detects PII, and generates signed audit reports runs on Zentric's infrastructure and requires an active license.
+
+### Why publish the middleware?
+
+Because trust is infrastructure. You should be able to verify how authentication works, how your API key is validated, and how subscription state is checked before your requests reach the engine. We believe in auditability at every layer — including our own enforcement code.
+
+### Contributions welcome
+
+We accept contributions to the middleware, webhook handler, and Supabase schema. Open a PR or file an issue. For security-related contributions, see the [Security](#security) section.
+
+### Getting access
+
+| Tier | Price | Requests | Start |
+|---|---|---|---|
+| **Free Trial** | Free | 500 requests | [Get API key →](https://zentricprotocol.com#api-access) |
+| **Growth** | $499/mo | 100,000 req/mo | [Start Growth →](https://buy.stripe.com/6oUeVebMY0Y94mM0blco000) |
+| **Enterprise** | $2,500/mo | Unlimited | [Start Enterprise →](https://buy.stripe.com/cNiaEY5oAcGRaLa8HRco001) |
+
+---
+
 ## What is Zentric Protocol?
 
 Zentric Protocol is an **infrastructure integrity layer** for AI systems. It sits between your application and your LLM, examining every signal — prompts, responses, user inputs — and returning a cryptographically-signed verdict before execution continues.
