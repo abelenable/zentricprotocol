@@ -978,21 +978,7 @@ curl -X POST https://api.zentricprotocol.com/v1/analyze \
 
      For this static HTML, values are embedded directly below.
      ============================================================ -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-// ── SUPABASE CONFIG ──────────────────────────────────────────────
-// Replace these with your actual Supabase project values.
-// Get them from: Supabase Dashboard → Settings → API
-const SUPABASE_URL      = 'https://bbgpmfepfkpqhwhloudy.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiZ3BtZmVwZmtwcWh3aGxvdWR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3ODkxMTYsImV4cCI6MjA5NDM2NTExNn0.u4B8nK8avvwkVGuaJBWHTsbHSIGRYCJnogGy8TPWeRc';
-
-let supabaseClient = null;
-try {
-  if (SUPABASE_URL !== 'REPLACE_WITH_YOUR_SUPABASE_URL' && SUPABASE_ANON_KEY !== 'REPLACE_WITH_YOUR_SUPABASE_ANON_KEY') {
-    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  }
-} catch(e) { console.warn('[Zentric] Supabase init error:', e); }
-
 // ── WAITLIST FORM ────────────────────────────────────────────────
 const form   = document.getElementById('waitlist-form');
 const emailI = document.getElementById('waitlist-email');
@@ -1017,35 +1003,28 @@ if (form) {
       return;
     }
 
-    // Fallback: if Supabase not configured, open mailto
-    if (!supabaseClient) {
-      window.location.href = 'mailto:core@zentricprotocol.com?subject=Waitlist%3A%20' + encodeURIComponent(email);
-      setMsg('Opening your email client — send us that address and we\'ll send your API key.', 'success');
-      return;
-    }
-
     // Disable UI
     btn.disabled = true;
     btn.textContent = 'Sending…';
     setMsg('');
 
     try {
-      const { error } = await supabaseClient
-        .from('waitlist')
-        .insert([{ email, source: 'landing' }]);
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
 
-      if (error) {
-        if (error.code === '23505') {
-          // Unique constraint: already on waitlist
-          setMsg("You're already in — API key on its way. Check your inbox.", 'success');
-          form.reset();
-        } else {
-          throw error;
-        }
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || 'Unknown error');
+
+      if (data.message === 'already_registered') {
+        setMsg("You're already in — check your inbox for your API key.", 'success');
       } else {
-        setMsg("API key incoming. Check your inbox within 24h — 500 requests free.", 'success');
-        form.reset();
+        setMsg("API key sent! Check your inbox (and spam folder) — 500 requests free.", 'success');
       }
+      form.reset();
     } catch (err) {
       console.error('[Zentric] Waitlist error:', err);
       setMsg('Something went wrong. Try emailing core@zentricprotocol.com directly.', 'error');
