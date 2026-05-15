@@ -50,7 +50,7 @@
           "https://x.com/ZentricProtocol",
           "https://www.instagram.com/zentricprotocol/",
           "https://www.linkedin.com/company/zentricprotocol/",
-          "https://github.com/abelenable/zentricprotocol"
+          "https://github.com/ZentricProtocol/zentricprotocol"
         ],
         "knowsAbout": ["PII Integrity","Deterministic Infrastructure","Secure Protocol","Privacy Engineering","AI Integrity","Prompt Injection Detection","PII Detection","GDPR Compliance","EU AI Act"]
       },
@@ -109,13 +109,7 @@
         ],
         "softwareVersion": "1.0",
         "releaseNotes": "Initial release — Q2 2026",
-        "publisher": { "@id": "https://zentricprotocol.com/#organization" },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "4.9",
-          "reviewCount": "1",
-          "bestRating": "5"
-        }
+        "publisher": { "@id": "https://zentricprotocol.com/#organization" }
       }
     ]
   }
@@ -440,16 +434,16 @@
             Zentric Protocol sits between your app and your LLM — inspecting every prompt, detecting injection, redacting PII, and returning a signed verdict. <em>Nothing reaches your model without passing through the protocol.</em>
           </p>
           <div class="cta-row">
-            <a href="#pricing" class="btn btn-primary">
+            <a href="#api-access" class="btn btn-primary">
               <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l6 3v4c0 3-2.5 5.5-6 6-3.5-.5-6-3-6-6V4l6-3z"/></svg>
-              Start free — 500 requests
+              Get your API key — free
             </a>
             <a href="/integrity-report.pdf" target="_blank" rel="noopener noreferrer" class="btn btn-kinetic">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
               Read the Integrity Report
             </a>
           </div>
-          <p style="margin-top:14px;font-size:12px;color:var(--ink-40);letter-spacing:0.03em;">From <strong style="color:var(--ink-60)">$499/mo</strong> · Growth plan · 500 requests free to start · No credit card required</p>
+          <p style="margin-top:14px;font-size:12px;color:var(--ink-40);letter-spacing:0.03em;">500 requests free · <strong style="color:var(--ink-60)">No credit card required</strong> · Growth from $499/mo</p>
         </div>
 
         <div class="metrics">
@@ -583,7 +577,7 @@ curl -X POST https://api.zentricprotocol.com/v1/analyze \
 }</code></pre>
       <div style="padding:16px 24px;border-top:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
         <span style="font-size:12px;color:var(--ink-40);">One API call. Deterministic verdict. Full audit trail. <strong style="color:var(--ink-60);">500 requests free.</strong></span>
-        <a href="#pricing" class="btn btn-primary" style="font-size:12px;padding:8px 16px;">
+        <a href="#api-access" class="btn btn-primary" style="font-size:12px;padding:8px 16px;">
           <svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l6 3v4c0 3-2.5 5.5-6 6-3.5-.5-6-3-6-6V4l6-3z"/></svg>
           Get your API key →
         </a>
@@ -790,16 +784,16 @@ curl -X POST https://api.zentricprotocol.com/v1/analyze \
   </div>
 </section>
 
-<!-- WAITLIST -->
-<section class="waitlist-section" id="waitlist" aria-label="Join the waitlist">
+<!-- API ACCESS / WAITLIST -->
+<section class="waitlist-section" id="api-access" aria-label="Get your API key">
   <div class="frame">
     <div class="waitlist-inner reveal">
-      <span class="waitlist-label">Protocol Updates · Free</span>
-      <h2 class="waitlist-title">Stay ahead of the protocol.</h2>
-      <p class="waitlist-body">Get notified when new capabilities ship — SDK releases, signature database updates, compliance coverage expansions, and the full Integrity Report v1.0 methodology in your inbox.</p>
+      <span class="waitlist-label">Early Access · Free</span>
+      <h2 class="waitlist-title">Start free. 500 requests.</h2>
+      <p class="waitlist-body">Enter your work email and we'll send you an API key with 500 free requests — no credit card, no commitment. Test the full protocol in your own environment before you decide.</p>
       <div class="waitlist-count">
         <div class="waitlist-count-dot"></div>
-        <span id="waitlist-count-text">Engineering teams already subscribed</span>
+        <span id="waitlist-count-text">Developers already have access</span>
       </div>
       <form class="waitlist-form" id="waitlist-form" novalidate>
         <input
@@ -813,11 +807,11 @@ curl -X POST https://api.zentricprotocol.com/v1/analyze \
           aria-label="Work email address"
         >
         <button class="waitlist-btn" type="submit" id="waitlist-submit">
-          Get updates
+          Get my API key →
         </button>
       </form>
       <div class="waitlist-msg" id="waitlist-msg" role="status" aria-live="polite"></div>
-      <p class="waitlist-privacy">No spam · Unsubscribe anytime · GDPR compliant</p>
+      <p class="waitlist-privacy">No credit card · No spam · GDPR compliant · API key within 24h</p>
     </div>
   </div>
 </section>
@@ -829,12 +823,12 @@ curl -X POST https://api.zentricprotocol.com/v1/analyze \
       <h2 class="cta-title">The protocol is live.<br><em>Start today.</em></h2>
       <p class="cta-body">Zentric Protocol is available now. Start with 500 free requests — no commitment. Upgrade to Growth or Enterprise when you're ready to run in production.</p>
       <div class="cta-actions">
-        <a href="https://buy.stripe.com/6oUeVebMY0Y94mM0blco000" class="btn btn-primary">
+        <a href="#api-access" class="btn btn-primary">
           <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l6 3v4c0 3-2.5 5.5-6 6-3.5-.5-6-3-6-6V4l6-3z"/></svg>
-          Start Growth — $499/mo
+          Get API key — free
         </a>
-        <a href="https://buy.stripe.com/cNiaEY5oAcGRaLa8HRco001" class="btn btn-kinetic">
-          Enterprise — $2,500/mo
+        <a href="https://buy.stripe.com/6oUeVebMY0Y94mM0blco000" class="btn btn-kinetic">
+          Growth — $499/mo
         </a>
         <a href="mailto:core@zentricprotocol.com" class="btn btn-ghost">Talk to us first</a>
       </div>
@@ -911,9 +905,9 @@ curl -X POST https://api.zentricprotocol.com/v1/analyze \
       <div class="footer-col">
         <h4>Resources</h4>
         <ul>
-          <li><a href="mailto:core@zentricprotocol.com">Documentation</a></li>
-          <li><a href="mailto:core@zentricprotocol.com">API Reference</a></li>
-          <li><a href="mailto:core@zentricprotocol.com">SDK</a></li>
+          <li><a href="#protocol" style="opacity:0.5;cursor:default" title="Coming soon">Documentation</a></li>
+          <li><a href="#protocol" style="opacity:0.5;cursor:default" title="Coming soon">API Reference</a></li>
+          <li><a href="#protocol" style="opacity:0.5;cursor:default" title="Coming soon">SDK</a></li>
           <li><a href="mailto:core@zentricprotocol.com">Changelog</a></li>
         </ul>
       </div>
@@ -1014,13 +1008,13 @@ if (form) {
     // Fallback: if Supabase not configured, open mailto
     if (!supabaseClient) {
       window.location.href = 'mailto:core@zentricprotocol.com?subject=Waitlist%3A%20' + encodeURIComponent(email);
-      setMsg('Opening your email client — send us that address!', 'success');
+      setMsg('Opening your email client — send us that address and we\'ll send your API key.', 'success');
       return;
     }
 
     // Disable UI
     btn.disabled = true;
-    btn.textContent = 'Joining…';
+    btn.textContent = 'Sending…';
     setMsg('');
 
     try {
@@ -1031,13 +1025,13 @@ if (form) {
       if (error) {
         if (error.code === '23505') {
           // Unique constraint: already on waitlist
-          setMsg("You're already on the list — we'll be in touch.", 'success');
+          setMsg("You're already in — API key on its way. Check your inbox.", 'success');
           form.reset();
         } else {
           throw error;
         }
       } else {
-        setMsg("You're in. We'll notify you when the protocol opens.", 'success');
+        setMsg("API key incoming. Check your inbox within 24h — 500 requests free.", 'success');
         form.reset();
       }
     } catch (err) {
@@ -1045,7 +1039,7 @@ if (form) {
       setMsg('Something went wrong. Try emailing core@zentricprotocol.com directly.', 'error');
     } finally {
       btn.disabled = false;
-      btn.textContent = 'Join waitlist';
+      btn.textContent = 'Get my API key →';
     }
   });
 }
