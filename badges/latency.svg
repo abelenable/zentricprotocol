@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="145" height="20" role="img" aria-label="latency: 23.4ms mean">
+  <title>latency: 23.4ms mean</title>
+  <g shape-rendering="crispEdges">
+    <rect width="57" height="20" fill="#0A0A0A"/>
+    <rect x="57" width="88" height="20" fill="#00FFC2"/>
+  </g>
+  <g font-family="Verdana,Geneva,DejaVu Sans,sans-serif" font-size="11" text-rendering="geometricPrecision">
+    <text x="28" y="14" fill="#ffffff" text-anchor="middle" letter-spacing="0.3">latency</text>
+    <text x="101" y="14" fill="#000000" text-anchor="middle" font-weight="600" letter-spacing="0.3">23.4ms mean</text>
+  </g>
+</svg>
