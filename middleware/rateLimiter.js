@@ -34,9 +34,9 @@ const supabase = createClient(
 // ---------------------------------------------------------------------------
 const TIER_LIMITS = {
   free: {
-    monthly:    500,
+    monthly:    2000, // matches FREE_TIER_LIMIT in /api/v1/analyze.js and landing copy
     perMinute:  10,
-    label:      'Free Trial',
+    label:      'Free Tier',
   },
   growth: {
     monthly:    100_000,

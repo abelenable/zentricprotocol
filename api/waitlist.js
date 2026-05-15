@@ -4,6 +4,39 @@
 import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
 
+// ---------------------------------------------------------------------------
+// IP rate limiter — prevents bulk account creation to abuse the free tier.
+// Allows 3 signups per IP per hour. In-memory per Vercel instance; sufficient
+// for burst protection. For distributed abuse, upgrade to Upstash Redis.
+// ---------------------------------------------------------------------------
+const IP_WINDOW_MS   = 60 * 60 * 1000; // 1 hour
+const IP_MAX_SIGNUPS = 3;
+const ipSignupMap    = new Map(); // ip → { count, windowStart }
+
+function getClientIP(req) {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (forwarded) return forwarded.split(',')[0].trim();
+  return req.socket?.remoteAddress ?? 'unknown';
+}
+
+function checkIPRateLimit(ip) {
+  const now    = Date.now();
+  const record = ipSignupMap.get(ip);
+
+  if (!record || now - record.windowStart > IP_WINDOW_MS) {
+    ipSignupMap.set(ip, { count: 1, windowStart: now });
+    return { allowed: true };
+  }
+
+  if (record.count >= IP_MAX_SIGNUPS) {
+    const resetInMinutes = Math.ceil((IP_WINDOW_MS - (now - record.windowStart)) / 60000);
+    return { allowed: false, resetInMinutes };
+  }
+
+  record.count += 1;
+  return { allowed: true };
+}
+
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -166,6 +199,16 @@ export default async function handler(req, res) {
 
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  // IP rate limiting — prevents bulk account creation to abuse free tier
+  const clientIP = getClientIP(req);
+  const ipCheck  = checkIPRateLimit(clientIP);
+  if (!ipCheck.allowed) {
+    return res.status(429).json({
+      error: 'RATE_LIMIT_EXCEEDED',
+      message: `Too many signup attempts. Try again in ${ipCheck.resetInMinutes} minute(s).`,
+    });
+  }
 
   const { email } = req.body;
 

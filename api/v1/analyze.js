@@ -85,6 +85,24 @@ function hashContent(content) {
   return crypto.createHash('sha256').update(content).digest('hex');
 }
 
+/**
+ * Sign a report with HMAC-SHA256 using ZENTRIC_SIGNING_SECRET.
+ * Makes report_hash tamper-evident — only the server can produce a valid
+ * signature, giving customers and auditors a verifiable audit artifact.
+ * Falls back to plain SHA-256 in dev (logs a warning so it's never silent).
+ */
+function signReport(reportData) {
+  const secret = process.env.ZENTRIC_SIGNING_SECRET;
+  if (secret) {
+    return crypto
+      .createHmac('sha256', secret)
+      .update(JSON.stringify(reportData))
+      .digest('hex');
+  }
+  console.warn('[analyze] ZENTRIC_SIGNING_SECRET not set — using unsigned SHA-256. Set this in Vercel before going live.');
+  return hashContent(JSON.stringify(reportData));
+}
+
 function generateReportId() {
   return crypto.randomUUID();
 }
@@ -255,8 +273,8 @@ export default async function handler(req, res) {
     requests_remaining: FREE_TIER_LIMIT - usedThisMonth - 1,
   };
 
-  // Sign the report
-  const reportHash = hashContent(JSON.stringify(report));
+  // Sign the report with HMAC-SHA256 (requires ZENTRIC_SIGNING_SECRET in Vercel env)
+  const reportHash = signReport(report);
   report.report_hash = reportHash;
 
   // ── Increment counter (non-blocking) ───────────────────────────────────────
