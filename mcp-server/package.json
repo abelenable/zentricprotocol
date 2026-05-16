@@ -4,7 +4,7 @@
   "description": "MCP server exposing Zentric Protocol's prompt injection + PII detection API as a native tool for MCP-compatible agents (Claude Desktop, Cursor, etc.).",
   "type": "module",
   "bin": {
-    "zentric-mcp": "./index.js"
+    "zentric-mcp": "index.js"
   },
   "files": [
     "index.js",
@@ -31,7 +31,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ZentricProtocol/zentricprotocol"
+    "url": "git+https://github.com/ZentricProtocol/zentricprotocol.git"
   },
   "license": "MIT",
   "dependencies": {
