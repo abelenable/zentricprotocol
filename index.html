@@ -147,7 +147,7 @@
     @media(max-width:540px){.frame{padding:0 20px}}
 
     /* Registration corners */
-    .reg-tick{position:fixed;width:14px;height:14px;z-index:50;pointer-events:none}
+    .reg-tick{position:fixed;width:14px;height:14px;z-index:31;pointer-events:none}
     .reg-tl{top:14px;left:14px;border-top:1px solid rgba(245,245,245,0.3);border-left:1px solid rgba(245,245,245,0.3)}
     .reg-tr{top:14px;right:14px;border-top:1px solid rgba(245,245,245,0.3);border-right:1px solid rgba(245,245,245,0.3)}
     .reg-bl{bottom:14px;left:14px;border-bottom:1px solid rgba(245,245,245,0.3);border-left:1px solid rgba(245,245,245,0.3)}
@@ -387,6 +387,14 @@
     .waitlist-privacy{font-family:var(--mono);font-size:10px;letter-spacing:0.1em;color:var(--ink-40);margin-top:12px;text-transform:uppercase}
     .waitlist-count{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;letter-spacing:0.16em;color:var(--ink-40);text-transform:uppercase;margin-bottom:28px}
     .waitlist-count-dot{width:5px;height:5px;border-radius:50%;background:var(--kinetic);box-shadow:0 0 6px var(--kinetic)}
+
+    /* REDUCED MOTION — keep elements with opacity:0 + animation visible if the user/browser disables animations */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
   </style>
 </head>
 <body>
