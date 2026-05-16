@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time PII Detection API · Zentric Protocol</title>
+  <meta name="description" content="Detect and redact 17 PII entity types — emails, IBANs, SSNs, NIF, CPF, CURP — before prompts reach your LLM. 23.4ms mean latency, 2,000 free requests, signed audit reports.">
+  <meta name="author" content="Zentric Protocol">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zentricprotocol.com/use-cases/pii-detection-api">
+  <meta property="og:title" content="Real-Time PII Detection API for AI Applications">
+  <meta property="og:description" content="Detect and redact 17 PII entity types — emails, IBANs, SSNs, NIF, CPF, CURP — before prompts reach your LLM. 23.4ms mean latency, 2,000 free requests, signed audit reports.">
+  <meta property="og:image" content="https://zentricprotocol.com/og.png?v=prelaunch">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="Zentric Protocol">
+  <meta property="og:locale" content="en_US">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@ZentricProtocol">
+  <meta name="twitter:title" content="Real-Time PII Detection API for AI Applications">
+  <meta name="twitter:description" content="Detect and redact 17 PII entity types — emails, IBANs, SSNs, NIF, CPF, CURP — before prompts reach your LLM. 23.4ms mean latency, 2,000 free requests, signed audit reports.">
+  <meta name="twitter:image" content="https://zentricprotocol.com/og.png?v=prelaunch">
+
+  <link rel="canonical" href="https://zentricprotocol.com/use-cases/pii-detection-api">
+  <link rel="alternate" hreflang="en" href="https://zentricprotocol.com/use-cases/pii-detection-api">
+  <link rel="alternate" hreflang="x-default" href="https://zentricprotocol.com/use-cases/pii-detection-api">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 1000'%3E%3Crect width='1000' height='1000' fill='%230A0A0A'/%3E%3Cpolygon points='260,84 740,84 980,500 911,620 512,620 731,240 170,240' fill='%23F5F5F5'/%3E%3Cpolygon points='740,916 260,916 20,500 89,380 488,380 269,760 830,760' fill='%23F5F5F5'/%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+:root{
+  --ink:#0A0A0A;--paper:#F5F5F5;--kinetic:#00FFC2;
+  --ink-90:rgba(245,245,245,0.92);--ink-60:rgba(245,245,245,0.55);
+  --ink-40:rgba(245,245,245,0.32);--ink-20:rgba(245,245,245,0.14);
+  --ink-10:rgba(245,245,245,0.08);--ink-05:rgba(245,245,245,0.04);
+  --rule:rgba(245,245,245,0.12);--rule-strong:rgba(245,245,245,0.2);
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,monospace;
+  --display:'Helvetica Neue','Helvetica',Arial,sans-serif;
+}
+body{background:var(--ink);color:var(--paper);font-family:var(--display);font-weight:400;-webkit-font-smoothing:antialiased;letter-spacing:-0.011em;overflow-x:hidden;line-height:1.55}
+.frame{position:relative;max-width:1100px;margin:0 auto;padding:0 60px}
+@media(max-width:900px){.frame{padding:0 36px}}
+@media(max-width:540px){.frame{padding:0 20px}}
+
+.reg-tick{position:fixed;width:14px;height:14px;z-index:31;pointer-events:none}
+.reg-tl{top:14px;left:14px;border-top:1px solid rgba(245,245,245,0.3);border-left:1px solid rgba(245,245,245,0.3)}
+.reg-tr{top:14px;right:14px;border-top:1px solid rgba(245,245,245,0.3);border-right:1px solid rgba(245,245,245,0.3)}
+.reg-bl{bottom:14px;left:14px;border-bottom:1px solid rgba(245,245,245,0.3);border-left:1px solid rgba(245,245,245,0.3)}
+.reg-br{bottom:14px;right:14px;border-bottom:1px solid rgba(245,245,245,0.3);border-right:1px solid rgba(245,245,245,0.3)}
+
+.doc-meta{position:fixed;font-family:var(--mono);font-size:9px;letter-spacing:0.22em;color:var(--ink-40);text-transform:uppercase;z-index:40;pointer-events:none;line-height:1.8}
+.doc-meta.tl{top:36px;left:36px}
+.doc-meta.tr{top:36px;right:36px;text-align:right}
+.doc-meta.bl{bottom:36px;left:36px}
+.doc-meta.br{bottom:36px;right:36px;text-align:right}
+@media(max-width:900px){.doc-meta{display:none}}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:30;background:rgba(10,10,10,0.75);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--rule);padding:20px 0}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;max-width:1400px;margin:0 auto;padding:0 60px}
+@media(max-width:900px){.nav-inner{padding:0 36px}}
+@media(max-width:540px){.nav-inner{padding:0 20px}}
+.brand{display:flex;align-items:center;gap:14px;text-decoration:none}
+.brand-logo{width:28px;height:28px;flex-shrink:0}
+.brand-text{display:flex;align-items:baseline;gap:10px}
+.brand-name{font-size:13px;font-weight:700;letter-spacing:0.22em;color:var(--paper)}
+.brand-sfx{font-size:9px;color:var(--ink-40);letter-spacing:0.2em;text-transform:uppercase;font-family:var(--mono)}
+.nav-links{display:flex;gap:36px;align-items:center}
+.nav-link{font-size:13px;color:var(--ink-60);text-decoration:none;letter-spacing:-0.005em;transition:color 0.25s;font-weight:400}
+.nav-link:hover{color:var(--paper)}
+@media(max-width:900px){.nav-links{display:none}}
+
+main{padding-top:140px;padding-bottom:120px}
+@media(max-width:640px){main{padding-top:110px;padding-bottom:80px}}
+
+.eyebrow{display:flex;align-items:center;gap:14px;margin-bottom:28px;font-family:var(--mono);font-size:11px;letter-spacing:0.22em;color:var(--ink-60);text-transform:uppercase}
+.eyebrow-line{width:32px;height:1px;background:var(--rule-strong)}
+.eyebrow a{color:var(--ink-60);text-decoration:none;transition:color 0.2s}
+.eyebrow a:hover{color:var(--paper)}
+
+h1{font-size:clamp(36px,5vw,68px);font-weight:700;line-height:1.07;letter-spacing:-0.035em;color:var(--paper);margin-bottom:28px;max-width:900px}
+.lede{font-size:18px;line-height:1.6;color:var(--ink-60);max-width:760px;margin-bottom:24px}
+.lede strong{color:var(--paper);font-weight:500}
+
+h2{font-size:clamp(26px,3.2vw,38px);font-weight:700;letter-spacing:-0.025em;line-height:1.15;margin:72px 0 18px;color:var(--paper)}
+h3{font-size:18px;font-weight:600;letter-spacing:-0.01em;color:var(--paper);margin:32px 0 10px}
+p{font-size:15px;line-height:1.75;color:var(--ink-90);margin-bottom:18px;max-width:760px}
+p strong{color:var(--paper);font-weight:500}
+ul,ol{margin:0 0 18px 22px;color:var(--ink-90);font-size:15px;line-height:1.75;max-width:760px}
+li{margin-bottom:6px}
+code.inline{font-family:var(--mono);font-size:13px;background:rgba(245,245,245,0.05);padding:1px 7px;border-radius:3px;color:var(--ink-90)}
+a.inline{color:var(--kinetic);text-decoration:none;border-bottom:1px solid rgba(0,255,194,0.3);transition:border-color 0.2s}
+a.inline:hover{border-bottom-color:var(--kinetic)}
+
+.codeblock{margin:28px 0 32px;background:rgba(245,245,245,0.015);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+.codeblock-head{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--rule);background:rgba(245,245,245,0.02);font-family:var(--mono);font-size:10px;letter-spacing:0.18em;color:var(--ink-40);text-transform:uppercase}
+.codeblock-head .badge{color:var(--kinetic)}
+.codeblock pre{margin:0;padding:22px 22px;font-family:var(--mono);font-size:12.5px;line-height:1.75;color:var(--ink-90);overflow-x:auto;white-space:pre}
+.codeblock pre .k{color:#98C379}
+.codeblock pre .c{color:var(--ink-40)}
+.codeblock pre .v{color:var(--kinetic)}
+.codeblock pre .n{color:#E5C07B}
+
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;font-family:var(--display);font-size:13px;font-weight:500;letter-spacing:-0.005em;cursor:pointer;border-radius:6px;transition:all 0.2s;border:none;text-decoration:none}
+.btn-primary{background:var(--paper);color:var(--ink);box-shadow:inset 0 1px 0 rgba(255,255,255,0.7),0 4px 24px rgba(245,245,245,0.08)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,0.8),0 8px 40px rgba(245,245,245,0.18)}
+.btn-kinetic{background:transparent;color:var(--kinetic);border:1px solid rgba(0,255,194,0.4)}
+.btn-kinetic:hover{background:rgba(0,255,194,0.06);box-shadow:0 0 24px rgba(0,255,194,0.15)}
+
+.cta-box{margin-top:88px;padding:48px;border:1px solid var(--rule);border-radius:8px;background:radial-gradient(ellipse 60% 80% at 50% 50%,rgba(0,255,194,0.025) 0%,transparent 70%)}
+.cta-box h2{margin-top:0;margin-bottom:14px;font-size:clamp(24px,3vw,36px)}
+.cta-box p{margin-bottom:20px}
+.cta-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+@media(max-width:540px){.cta-box{padding:32px 22px}.cta-actions{flex-direction:column;align-items:stretch}.btn{justify-content:center}}
+
+.related{margin-top:80px;padding-top:32px;border-top:1px solid var(--rule)}
+.related-label{font-family:var(--mono);font-size:10px;letter-spacing:0.22em;color:var(--ink-40);text-transform:uppercase;margin-bottom:18px}
+.related-links{display:flex;flex-wrap:wrap;gap:24px}
+.related-links a{font-size:14px;color:var(--ink-90);text-decoration:none;border-bottom:1px solid var(--rule);padding-bottom:2px;transition:color 0.2s,border-color 0.2s}
+.related-links a:hover{color:var(--kinetic);border-bottom-color:var(--kinetic)}
+
+.footer{padding:48px 0 40px;border-top:1px solid var(--rule);margin-top:64px}
+.footer-grid{display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;letter-spacing:0.14em;color:var(--ink-40);text-transform:uppercase}
+.footer-grid a{color:var(--ink-60);text-decoration:none;margin-right:18px}
+.footer-grid a:hover{color:var(--paper)}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:0.01ms !important;transition-duration:0.01ms !important}
+}
+  </style>
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://zentricprotocol.com/use-cases/pii-detection-api#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://zentricprotocol.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Use cases",
+          "item": "https://zentricprotocol.com/use-cases/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "PII Detection API",
+          "item": "https://zentricprotocol.com/use-cases/pii-detection-api"
+        }
+      ]
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://zentricprotocol.com/use-cases/pii-detection-api#webpage",
+      "url": "https://zentricprotocol.com/use-cases/pii-detection-api",
+      "name": "Real-Time PII Detection API for AI Applications",
+      "description": "Detect and redact 17 PII entity types \u2014 emails, IBANs, SSNs, NIF, CPF, CURP \u2014 before prompts reach your LLM. 23.4ms mean latency, 2,000 free requests, signed audit reports.",
+      "inLanguage": "en-US",
+      "isPartOf": {
+        "@type": "WebSite",
+        "@id": "https://zentricprotocol.com/#website"
+      },
+      "primaryImageOfPage": "https://zentricprotocol.com/og.png",
+      "breadcrumb": {
+        "@id": "https://zentricprotocol.com/use-cases/pii-detection-api#breadcrumb"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://zentricprotocol.com/#organization"
+      }
+    }
+  ]
+}
+  </script>
+</head>
+<body>
+  <div class="reg-tick reg-tl"></div>
+  <div class="reg-tick reg-tr"></div>
+  <div class="reg-tick reg-bl"></div>
+  <div class="reg-tick reg-br"></div>
+  <div class="doc-meta tl">DOC ZP-USE-CASE<br>REV 2026.05</div>
+  <div class="doc-meta tr">ZENTRIC PROTOCOL<br>INFRASTRUCTURE</div>
+  <div class="doc-meta bl">USE CASE</div>
+  <div class="doc-meta br">v1.0.0</div>
+
+  <nav class="nav" aria-label="Primary">
+    <div class="nav-inner">
+      <a href="/" class="brand" aria-label="Zentric Protocol — home">
+        <svg class="brand-logo" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <polygon points="260,84 740,84 980,500 911,620 512,620 731,240 170,240" fill="#F5F5F5"/>
+          <polygon points="740,916 260,916 20,500 89,380 488,380 269,760 830,760" fill="#F5F5F5"/>
+        </svg>
+        <div class="brand-text">
+          <span class="brand-name">ZENTRIC</span>
+          <span class="brand-sfx">PROTOCOL</span>
+        </div>
+      </a>
+      <div class="nav-links">
+        <a class="nav-link" href="/#protocol">Protocol</a>
+        <a class="nav-link" href="/#capabilities">Specification</a>
+        <a class="nav-link" href="/#evidence">Research</a>
+        <a class="nav-link" href="/#pricing">Pricing</a>
+        <a class="nav-link" href="/#api-access">Get API key</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="frame">
+      <div class="eyebrow">
+        <a href="/">Zentric Protocol</a>
+        <span class="eyebrow-line"></span>
+        <span>Use case</span>
+      </div>
+      <h1>Real-Time PII Detection API for AI Applications</h1>
+      <p class="lede">PrivacyGuard scans every prompt for <strong>17 PII entity types</strong> — emails, phone numbers, IBANs, U.S. SSNs, SWIFT codes, and regional identifiers like NIF, CPF, and CURP — and returns a redacted version your application can safely forward to the model. Mean server-side latency: 23.4 milliseconds. Every call ships with a SHA-256 signed report and a UUID, so any later audit can reproduce what was redacted and when.</p>
+
+      <h2>What counts as PII in an LLM application?</h2>
+      <p>Personally identifiable information — PII — is any data that can identify a specific person directly (an email, a phone number, a national identifier) or indirectly when combined with other data. In a Large Language Model application the risk is that users routinely paste this information into prompts without realizing it: a customer-support assistant receives an email signature; a coding assistant receives a stack trace with a real user record; a translation tool receives a contract with a tax ID.</p>
+      <p>Once that information enters the model the application loses control of it. The model provider may log it. The application itself may store the prompt for analytics or fine-tuning. The information may surface again in a completion to a different user. The window between user input and model invocation is the only point where redaction is straightforward — once the prompt has been processed there is no clean way to unmix it. A real-time PII detection API is the surgical instrument for that window.</p>
+
+      <h2>The 17 PII entity types</h2>
+      <p>PrivacyGuard recognizes 17 entity types covering the categories most production applications encounter:</p>
+      <ul>
+        <li><strong>Contact data</strong> — email addresses, phone numbers in international and U.S. formats.</li>
+        <li><strong>Financial identifiers</strong> — IBAN account numbers with country prefix and check digits, SWIFT/BIC codes.</li>
+        <li><strong>National identifiers</strong> — U.S. Social Security numbers (SSN), Spanish NIF, Brazilian CPF, Mexican CURP, and additional regional formats published in the Integrity Report.</li>
+      </ul>
+      <p>Each entity is matched by a dedicated pattern, not by a single generic regular expression. Regional identifiers fail under a one-size-fits-all approach: an IBAN has structural check digits, a CPF has its own modulo-11 validation, a CURP follows the date-of-birth-plus-initials schema. Treating them as first-class entities lets PrivacyGuard report the type of redaction with the correct semantic label — which downstream audit systems need when explaining what was redacted from a user prompt.</p>
+
+      <h2>What the API returns</h2>
+      <p>Every analysis with the privacy module enabled returns a <code class="inline">privacy.entities</code> array. Each entity records the type (EMAIL, PHONE, IBAN, SSN, etc.), the action taken (REDACTED), and the position offsets of the match in the original input as a <code class="inline">[start, end]</code> pair. Position offsets let your application overlay the redaction back onto its own UI if it needs to show users which part of their input was modified.</p>
+      <p>When at least one PII entity is detected, the top-level verdict becomes ANONYMIZED and the response includes an <code class="inline">anonymized_input</code> field with placeholder tokens substituted for each match. Forwarding <code class="inline">anonymized_input</code> to your LLM removes the user's raw PII from the model's context without affecting the meaning of the prompt — a question containing an email address can still be answered without the model ever seeing the address.</p>
+      <p>Every analysis ships with a SHA-256 hash of the report contents, a UUID, and a UTC timestamp. That combination is sufficient to reconstruct what was redacted from any specific prompt months later.</p>
+
+      <h2>API request and response</h2>
+      <p>The request body is identical to the integrity workflow except for the <code class="inline">modules</code> array, which contains <code class="inline">privacy</code> (alone, or combined with <code class="inline">integrity</code> to run both engines in one call). The options object accepts a <code class="inline">language</code> field — defaulting to <code class="inline">auto</code> — that selects the locale-specific PII patterns.</p>
+
+      <div class="codeblock">
+        <div class="codeblock-head"><span>REQUEST · POST /v1/analyze</span><span class="badge">◆ PRIVACY</span></div>
+        <pre><span class="c"># Detect and redact PII — uses the privacy module.</span>
+curl -X POST <span class="k">https://api.zentricprotocol.com/v1/analyze</span> \
+  -H <span class="k">"Authorization: Bearer zp_live_••••••••"</span> \
+  -H <span class="k">"Content-Type: application/json"</span> \
+  -d <span class="k">'{
+    "input": "My email is john.doe@example.com and my SSN is 123-45-6789.",
+    "modules": ["privacy"],
+    "options": { "language": "auto" }
+  }'</span></pre>
+      </div>
+
+      <p>In the response the verdict is ANONYMIZED. The <code class="inline">privacy.pii_detected</code> flag is true and the <code class="inline">privacy.entities</code> array contains one record per match. The <code class="inline">anonymized_input</code> field replaces every detected entity with a <code class="inline">[REDACTED]</code> placeholder while preserving the rest of the prompt unchanged. Your application forwards <code class="inline">anonymized_input</code> to the LLM and never sends the raw value across the wire to the model.</p>
+
+      <div class="codeblock">
+        <div class="codeblock-head"><span>RESPONSE · 200 OK</span><span class="badge">◆ ANONYMIZED</span></div>
+        <pre><span class="c"># 200 OK — verdict ANONYMIZED + redacted output</span>
+{
+  <span class="k">"status"</span>: <span class="k">"ok"</span>,
+  <span class="k">"verdict"</span>: <span class="v">"ANONYMIZED"</span>,
+  <span class="k">"report"</span>: {
+    <span class="k">"report_id"</span>: <span class="k">"zp_4F0E670C1E27E4B4"</span>,
+    <span class="k">"uuid"</span>: <span class="k">"a1c4&hellip;-&hellip;-&hellip;"</span>,
+    <span class="k">"timestamp_utc"</span>: <span class="k">"2026-05-17T11:43:51.108Z"</span>,
+    <span class="k">"sha256"</span>: <span class="k">"4f0e670c&hellip;"</span>,
+    <span class="k">"verdict"</span>: <span class="v">"ANONYMIZED"</span>,
+    <span class="k">"integrity"</span>: { <span class="k">"injection_detected"</span>: <span class="v">false</span>, <span class="k">"signatures_matched"</span>: [], <span class="k">"confidence"</span>: <span class="n">0.9998</span> },
+    <span class="k">"privacy"</span>: {
+      <span class="k">"pii_detected"</span>: <span class="v">true</span>,
+      <span class="k">"entities"</span>: [
+        { <span class="k">"type"</span>: <span class="k">"EMAIL"</span>, <span class="k">"action"</span>: <span class="k">"REDACTED"</span>, <span class="k">"position"</span>: [<span class="n">12</span>, <span class="n">33</span>] },
+        { <span class="k">"type"</span>: <span class="k">"SSN"</span>,   <span class="k">"action"</span>: <span class="k">"REDACTED"</span>, <span class="k">"position"</span>: [<span class="n">49</span>, <span class="n">60</span>] }
+      ]
+    },
+    <span class="k">"compliance"</span>: { <span class="k">"gdpr_art30"</span>: <span class="v">true</span>, <span class="k">"ccpa"</span>: <span class="v">true</span>, <span class="k">"eu_ai_act_s52"</span>: <span class="v">true</span> },
+    <span class="k">"latency_ms"</span>: <span class="n">22.7</span>
+  },
+  <span class="k">"anonymized_input"</span>: <span class="k">"My email is [REDACTED] and my SSN is [REDACTED]."</span>,
+  <span class="k">"latency_ms"</span>: <span class="n">22.7</span>
+}</pre>
+      </div>
+
+      <h2>Why this matters for data protection</h2>
+      <p>Data-protection programs measure two things: the surface area where personal data is processed, and the auditability of every processing decision. A prompt that contains a user's IBAN and is sent to an external LLM expands both surfaces — the IBAN is now processed by an additional vendor, and the decision to send it has no record. Redacting at the prompt layer reverses both effects.</p>
+      <p>PrivacyGuard's structured output — typed entity records with position offsets, a SHA-256 hash on the full report, and a UTC timestamp — gives a compliance team a defensible answer to "what personal data did this LLM see, when, and how was it minimized?" Combined with retention-window controls on your side, this is the foundation of GDPR-style data-minimization for AI applications.</p>
+
+      <h2>Performance and pricing</h2>
+      <p>Mean server-side latency is 23.4 milliseconds with P99 under 100 milliseconds, measured across one million simulated requests. The Free tier covers 2,000 PII analyses per month with no credit card. Growth at $499 per month raises the quota to 100,000 analyses. Enterprise at $2,500 per month removes the quota and adds EU data residency, dedicated SLA, and signed PDF integrity certificates suitable for vendor due-diligence packages.</p>
+
+      <div class="cta-box">
+        <h2>Redact PII before it reaches your model</h2>
+        <p>Start with 2,000 free PII analyses per month, no credit card. Same module, same precision, same signed audit report as paid tiers.</p>
+        <div class="cta-actions">
+          <a href="/#api-access" class="btn btn-primary">Get API key — 2,000 free</a>
+          <a href="/#pricing" class="btn btn-kinetic">View pricing</a>
+        </div>
+      </div>
+
+      <div class="related">
+        <div class="related-label">Related</div>
+        <div class="related-links">
+        <a href="/use-cases/prompt-injection-detection">Prompt Injection Detection →</a>
+        <a href="/use-cases/llm-security-api">LLM Security API →</a>
+          <a href="/integrity-report.pdf" target="_blank" rel="noopener noreferrer">Integrity Report (PDF) →</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="frame">
+      <div class="footer-grid">
+        <div>© ZP MMXXVI · v1.0.0</div>
+        <div>
+          <a href="/use-cases/prompt-injection-detection">Prompt Injection</a>
+          <a href="/use-cases/pii-detection-api">PII Detection</a>
+          <a href="/use-cases/llm-security-api">LLM Security</a>
+          <a href="mailto:core@zentricprotocol.com">Contact</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
