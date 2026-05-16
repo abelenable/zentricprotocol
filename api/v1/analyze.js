@@ -1,12 +1,188 @@
-// api/v1/analyze.js — Zentric Protocol Core Endpoint
-// Injection detection + PII detection with signed audit report
-//
-// Route: POST /v1/analyze
-// Auth:  Authorization: Bearer zp_live_...
+import crypto from 'node:crypto';
+import { analyze } from '../../lib/detect.js';
+import {
+  getSupabase,
+  lookupApiKey,
+  getMonthlyUsage,
+  incrementUsage,
+  logReport,
+  currentMonthKey,
+} from '../../lib/supabase.js';
 
-import crypto from 'crypto';
-import { createClient } from '@supabase/supabase-js';
+const TIER_LIMITS = {
+  FREE: 2000,
+  GROWTH: 100000,
+};
 
+<<<<<<< HEAD
+function setCors(res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+  res.setHeader('Access-Control-Max-Age', '86400');
+  res.setHeader('X-Powered-By', 'Zentric Protocol v1.0');
+}
+
+function sendJson(res, status, payload) {
+  res.statusCode = status;
+  res.setHeader('Content-Type', 'application/json');
+  res.end(JSON.stringify(payload));
+}
+
+function extractBearerToken(req) {
+  const header = req.headers?.authorization || req.headers?.Authorization;
+  if (!header || typeof header !== 'string') return null;
+  if (!header.toLowerCase().startsWith('bearer ')) return null;
+  const token = header.slice(7).trim();
+  return token || null;
+}
+
+async function readJsonBody(req) {
+  if (req.body !== undefined && req.body !== null) {
+    if (typeof req.body === 'string') {
+      try {
+        return JSON.parse(req.body);
+      } catch {
+        return { __parseError: true };
+      }
+    }
+    return req.body;
+  }
+  return new Promise((resolve) => {
+    let raw = '';
+    req.on('data', (chunk) => {
+      raw += chunk;
+      if (raw.length > 1_000_000) {
+        req.destroy();
+        resolve({ __parseError: true });
+      }
+    });
+    req.on('end', () => {
+      if (!raw) return resolve({});
+      try {
+        resolve(JSON.parse(raw));
+      } catch {
+        resolve({ __parseError: true });
+      }
+    });
+    req.on('error', () => resolve({ __parseError: true }));
+  });
+}
+
+function signReport(report) {
+  const secret = process.env.HMAC_SECRET;
+  if (!secret) return;
+  const payload = `${report.report_id}.${report.sha256}.${report.timestamp_utc}`;
+  report.report_hash = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+}
+
+export default async function handler(req, res) {
+  setCors(res);
+
+  if (req.method === 'OPTIONS') {
+    res.statusCode = 204;
+    return res.end();
+  }
+  if (req.method !== 'POST') {
+    return sendJson(res, 405, { error: 'method_not_allowed', message: 'Use POST' });
+  }
+
+  const apiKey = extractBearerToken(req);
+  if (!apiKey) {
+    return sendJson(res, 401, {
+      error: 'unauthorized',
+      message: 'Missing or malformed Authorization header. Use: Authorization: Bearer <api_key>',
+    });
+  }
+
+  let supabase;
+  try {
+    supabase = getSupabase();
+  } catch (err) {
+    console.error('Supabase init failed:', err);
+    return sendJson(res, 500, { error: 'server_misconfigured', message: err.message });
+  }
+
+  let keyRow;
+  try {
+    keyRow = await lookupApiKey(supabase, apiKey);
+  } catch (err) {
+    console.error('API key lookup failed:', err);
+    return sendJson(res, 500, { error: 'auth_lookup_failed', message: 'Internal auth error' });
+  }
+  if (!keyRow || !keyRow.is_active) {
+    return sendJson(res, 401, { error: 'unauthorized', message: 'Invalid or inactive API key' });
+  }
+
+  const tier = (keyRow.tier || 'FREE').toUpperCase();
+  const monthlyLimit = TIER_LIMITS[tier] ?? TIER_LIMITS.FREE;
+  const month = currentMonthKey();
+  let usedCount = 0;
+  try {
+    usedCount = await getMonthlyUsage(supabase, keyRow.user_id, month);
+  } catch (err) {
+    console.error('Usage lookup failed:', err);
+  }
+  if (usedCount >= monthlyLimit) {
+    res.setHeader('X-RateLimit-Limit', String(monthlyLimit));
+    res.setHeader('X-RateLimit-Remaining', '0');
+    res.setHeader('X-RateLimit-Reset-Month', month);
+    return sendJson(res, 429, {
+      error: 'rate_limit_exceeded',
+      message: `Monthly quota of ${monthlyLimit} requests reached for ${tier} tier`,
+      tier,
+      limit: monthlyLimit,
+      used: usedCount,
+      reset_month: month,
+    });
+  }
+
+  const body = await readJsonBody(req);
+  if (body?.__parseError) {
+    return sendJson(res, 400, { error: 'invalid_body', message: 'Invalid JSON body' });
+  }
+  const { input, modules, options } = body || {};
+  if (!input || typeof input !== 'string' || !input.trim()) {
+    return sendJson(res, 400, { error: 'invalid_input', message: 'input field is required (non-empty string)' });
+  }
+
+  const selectedModules = Array.isArray(modules) && modules.length > 0
+    ? modules
+    : ['integrity', 'privacy'];
+
+  let result;
+  try {
+    result = analyze(input, selectedModules);
+  } catch (err) {
+    console.error('Detection failed:', err);
+    return sendJson(res, 500, { error: 'detection_failed', message: 'Detection engine error' });
+  }
+
+  if (options && typeof options === 'object') {
+    result.echo_options = options;
+  }
+  signReport(result.report);
+
+  res.setHeader('X-RateLimit-Limit', String(monthlyLimit));
+  res.setHeader('X-RateLimit-Remaining', String(Math.max(0, monthlyLimit - usedCount - 1)));
+  res.setHeader('X-RateLimit-Reset-Month', month);
+  sendJson(res, 200, result);
+
+  try {
+    await Promise.all([
+      logReport(supabase, {
+        reportId: result.report.report_id,
+        userId: keyRow.user_id,
+        verdict: result.verdict,
+        sha256: result.report.sha256,
+        latencyMs: result.report.latency_ms,
+      }),
+      incrementUsage(supabase, keyRow.user_id, month, usedCount),
+    ]);
+  } catch (err) {
+    console.error('Post-response logging failed:', err);
+  }
+=======
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY,
@@ -285,4 +461,5 @@ export default async function handler(req, res) {
     });
 
   return res.status(200).json(report);
+>>>>>>> ab6a2a5b2448d95791e633ff7d8d9ab42afa8b32
 }
