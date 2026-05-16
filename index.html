@@ -978,8 +978,8 @@ curl -X POST https://api.zentricprotocol.com/v1/analyze \
 <section class="waitlist-section" id="api-access" aria-label="Get your API key">
   <div class="frame">
     <div class="waitlist-inner reveal">
-      <span class="waitlist-label">Early Access · Free</span>
-      <h2 class="waitlist-title">Start free. 2,000 requests.</h2>
+      <span class="waitlist-label">API Access · Free</span>
+      <h2 class="waitlist-title">Get your API key now. 2,000 free requests.</h2>
       <p class="waitlist-body">Enter your work email and we'll send you an API key with 2,000 free requests — no credit card, no commitment. Test the full protocol in your own environment before you decide.</p>
       <div class="waitlist-count">
         <div class="waitlist-count-dot"></div>
@@ -997,7 +997,7 @@ curl -X POST https://api.zentricprotocol.com/v1/analyze \
           aria-label="Work email address"
         >
         <button class="waitlist-btn" type="submit" id="waitlist-submit">
-          Get my API key →
+          Get API key →
         </button>
       </form>
       <div class="waitlist-msg" id="waitlist-msg" role="status" aria-live="polite"></div>
@@ -1220,8 +1220,12 @@ const emailI = document.getElementById('waitlist-email');
 const btn    = document.getElementById('waitlist-submit');
 const msg    = document.getElementById('waitlist-msg');
 
-function setMsg(text, type) {
-  msg.textContent = text;
+function setMsg(text, type, isHtml) {
+  if (isHtml) {
+    msg.innerHTML = text;
+  } else {
+    msg.textContent = text;
+  }
   msg.className = 'waitlist-msg ' + (type || '');
 }
 
@@ -1255,9 +1259,9 @@ if (form) {
       if (!res.ok) throw new Error(data.error || 'Unknown error');
 
       if (data.message === 'already_registered') {
-        setMsg("You're already in — check your inbox for your API key.", 'success');
+        setMsg('You\'re already in — check your inbox for your API key. Start here: <a href="/quickstart" style="color:inherit;text-decoration:underline">zentricprotocol.com/quickstart</a>', 'success', true);
       } else {
-        setMsg("API key sent! Check your inbox (and spam folder) — 2,000 requests free.", 'success');
+        setMsg('Your API key is on its way — check your inbox (and spam). Once you have it, start here: <a href="/quickstart" style="color:inherit;text-decoration:underline">zentricprotocol.com/quickstart</a>', 'success', true);
       }
       form.reset();
     } catch (err) {
@@ -1265,7 +1269,7 @@ if (form) {
       setMsg('Something went wrong. Try emailing core@zentricprotocol.com directly.', 'error');
     } finally {
       btn.disabled = false;
-      btn.textContent = 'Get my API key →';
+      btn.textContent = 'Get API key →';
     }
   });
 }
