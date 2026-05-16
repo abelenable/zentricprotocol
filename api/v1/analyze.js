@@ -223,7 +223,7 @@ export default async function handler(req, res) {
     supabase = getSupabase();
   } catch (err) {
     console.error('Supabase init failed:', err);
-    return sendJson(res, 500, { error: 'SERVER_MISCONFIGURED', message: err.message });
+    return sendJson(res, 500, { error: 'SERVER_MISCONFIGURED', message: 'Server configuration error. Contact support.' });
   }
 
   let auth;

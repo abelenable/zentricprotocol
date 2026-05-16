@@ -355,11 +355,19 @@
       + '</div>';
   }
 
+  function safeHref(url){
+    // Only allow https:// URLs — blocks javascript: and data: URIs
+    try {
+      const u = new URL(String(url));
+      return u.protocol === 'https:' ? u.href : UPGRADE_URL;
+    } catch { return UPGRADE_URL; }
+  }
+
   function upgradeRow(label, href, cta){
     return ''
       + '<div class="row-link">'
       +   '<span class="row-link-label">'+escapeHtml(label)+'</span>'
-      +   '<a href="'+escapeHtml(href)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(cta)+' →</a>'
+      +   '<a href="'+escapeHtml(safeHref(href))+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(cta)+' →</a>'
       + '</div>';
   }
 
