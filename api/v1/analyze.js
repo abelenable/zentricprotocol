@@ -1,225 +1,324 @@
 import crypto from 'node:crypto';
-import { createClient } from '@supabase/supabase-js';
+import { analyze } from '../../lib/detect.js';
+import { getSupabase, hashApiKey, currentMonthKey } from '../../lib/supabase.js';
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
-  { auth: { persistSession: false } }
-);
+const FREE_MONTHLY_LIMIT = 2000;
+const PLAN_LIMITS = {
+  growth: 100_000,
+  enterprise: 999_999_999,
+};
+const ACTIVE_SUB_STATUSES = new Set(['active', 'trialing']);
+const UPGRADE_URL = 'https://zentricprotocol.com/pricing';
 
-const FREE_TIER_LIMIT = 2000;
-
-const INJECTION_SIGNATURES = [
-  { id: 'INJ-001', pattern: /ignore\s+(all\s+)?previous\s+instructions?/i,       label: 'Direct instruction override' },
-  { id: 'INJ-002', pattern: /disregard\s+(all\s+)?(your\s+)?instructions?/i,     label: 'Instruction disregard' },
-  { id: 'INJ-003', pattern: /forget\s+(all\s+)?(your\s+)?instructions?/i,        label: 'Instruction erasure' },
-  { id: 'INJ-004', pattern: /override\s+(your\s+)?(safety|system|instructions?)/i, label: 'Safety override attempt' },
-  { id: 'INJ-005', pattern: /new\s+instructions?\s*:/i,                           label: 'Instruction injection' },
-  { id: 'INJ-006', pattern: /\[?system\s+prompt\]?\s*:/i,                        label: 'System prompt injection' },
-  { id: 'INJ-007', pattern: /###\s*(system|human|assistant)\s*:/i,               label: 'Chat format injection' },
-  { id: 'INJ-008', pattern: /\[INST\]|\[\/INST\]/i,                              label: 'LLaMA instruction tag' },
-  { id: 'INJ-009', pattern: /<\|im_start\|>|<\|im_end\|>/i,                      label: 'ChatML token injection' },
-  { id: 'INJ-010', pattern: /\\n\\nHuman:|\\n\\nAssistant:/i,                    label: 'RLHF format injection' },
-  { id: 'INJ-011', pattern: /you\s+are\s+now\s+(a|an|the)\s+/i,                 label: 'Persona override' },
-  { id: 'INJ-012', pattern: /act\s+as\s+(a|an|the|if)\s+/i,                     label: 'Role injection' },
-  { id: 'INJ-013', pattern: /pretend\s+(you\s+are|to\s+be)\s+/i,                label: 'Persona injection' },
-  { id: 'INJ-014', pattern: /roleplay\s+as\s+/i,                                 label: 'Roleplay hijack' },
-  { id: 'INJ-015', pattern: /jailbreak|jail\s+break/i,                           label: 'Jailbreak attempt' },
-  { id: 'INJ-016', pattern: /developer\s+mode|debug\s+mode|god\s+mode/i,        label: 'Mode bypass attempt' },
-  { id: 'INJ-017', pattern: /\bDAN\b.*do\s+anything\s+now/i,                    label: 'DAN jailbreak' },
-  { id: 'INJ-018', pattern: /<\/s>|<s>|<eos>|<bos>/i,                           label: 'EOS token injection' },
-  { id: 'INJ-019', pattern: /base64[^a-z]*(decode|encoded)/i,                   label: 'Base64 obfuscation' },
-  { id: 'INJ-020', pattern: /‮|​|‌|‍|﻿/,               label: 'Unicode control character' },
-  { id: 'INJ-021', pattern: /ignora\s+(todas?\s+)?las\s+instrucciones?|ignorez\s+les\s+instructions?|ignoriere\s+alle\s+anweisungen/i, label: 'Multilingual instruction override' },
-  { id: 'INJ-022', pattern: /the\s+(above|following|previous)\s+(instructions?|context|text)\s+(should\s+be\s+ignored|is\s+wrong)/i, label: 'Context manipulation' },
-];
-
-const PII_PATTERNS = [
-  { type: 'EMAIL',            pattern: /\b[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}\b/g },
-  { type: 'US_SSN',           pattern: /\b(?!000|666|9\d{2})\d{3}[-\s](?!00)\d{2}[-\s](?!0000)\d{4}\b/g },
-  { type: 'CREDIT_CARD',      pattern: /\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|6(?:011|5[0-9]{2})[0-9]{12})\b/g },
-  { type: 'IBAN',             pattern: /\b[A-Z]{2}\d{2}[A-Z0-9]{4}\d{7}(?:[A-Z0-9]?){0,16}\b/g },
-  { type: 'PHONE_INTL',       pattern: /(?:\+\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4,}\b/g },
-  { type: 'PASSPORT',         pattern: /\b[A-Z]{1,2}[0-9]{6,9}\b/g },
-  { type: 'IP_ADDRESS',       pattern: /\b(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\b/g },
-  { type: 'AWS_ACCESS_KEY',   pattern: /\b(?:AKIA|ASIA|ABIA|ACCA)[A-Z0-9]{16}\b/g },
-  { type: 'PRIVATE_KEY',      pattern: /-----BEGIN\s(?:RSA\s)?PRIVATE\sKEY-----/g },
-  { type: 'API_TOKEN',        pattern: /\b(?:sk-|pk-|rk-|xox[baprs]-)[a-zA-Z0-9]{20,}\b/g },
-  { type: 'BITCOIN_ADDRESS',  pattern: /\b(?:bc1|[13])[a-zA-HJ-NP-Z0-9]{25,62}\b/g },
-  { type: 'UK_NIN',           pattern: /\b[A-CEGHJ-PR-TW-Z]{2}\d{6}[A-D]\b/gi },
-  { type: 'US_DRIVER_LICENSE',pattern: /\b[A-Z]\d{7}\b|\b\d{9}\b/g },
-  { type: 'DATE_OF_BIRTH',    pattern: /\b(?:dob|date\s+of\s+birth|born\s+on)[:\s]+\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\b/gi },
-  { type: 'PHYSICAL_ADDRESS', pattern: /\b\d{1,5}\s+[a-zA-Z\s]{3,30}(?:street|st|avenue|ave|boulevard|blvd|road|rd|lane|ln|drive|dr|court|ct|way)\b/gi },
-  { type: 'MEDICAL_RECORD',   pattern: /\b(?:mrn|medical\s+record\s+(?:number|#|no))[:\s]+[A-Z0-9\-]{4,20}\b/gi },
-  { type: 'JWT_TOKEN',        pattern: /\beyJ[a-zA-Z0-9_\-]{10,}\.[a-zA-Z0-9_\-]{10,}\.[a-zA-Z0-9_\-]{10,}\b/g },
-];
-
-function hashKey(rawKey) {
-  return crypto.createHash('sha256').update(rawKey).digest('hex');
-}
-
-function hashContent(content) {
-  return crypto.createHash('sha256').update(content).digest('hex');
-}
-
-function signReport(reportData) {
-  const secret = process.env.ZENTRIC_SIGNING_SECRET;
-  if (secret) {
-    return crypto.createHmac('sha256', secret).update(JSON.stringify(reportData)).digest('hex');
-  }
-  console.warn('[analyze] ZENTRIC_SIGNING_SECRET not set — using unsigned SHA-256.');
-  return hashContent(JSON.stringify(reportData));
-}
-
-function generateReportId() {
-  return crypto.randomUUID();
-}
-
-function runIntegrityGuard(input) {
-  const flags = [];
-  for (const sig of INJECTION_SIGNATURES) {
-    if (sig.pattern.test(input)) {
-      flags.push({ id: sig.id, label: sig.label });
-      sig.pattern.lastIndex = 0;
-    }
-  }
-  const riskScore = Math.min(100, Math.round((flags.length / INJECTION_SIGNATURES.length) * 100 * 3));
-  return {
-    passed: flags.length === 0,
-    risk_score: riskScore,
-    flags,
-    signatures_checked: INJECTION_SIGNATURES.length,
-    languages_covered: 7,
-  };
-}
-
-function runPrivacyGuard(input) {
-  const detected = [];
-  for (const pii of PII_PATTERNS) {
-    pii.pattern.lastIndex = 0;
-    const matches = [...input.matchAll(pii.pattern)];
-    if (matches.length > 0) {
-      detected.push({ type: pii.type, count: matches.length });
-    }
-    pii.pattern.lastIndex = 0;
-  }
-  return {
-    passed: detected.length === 0,
-    pii_detected: detected,
-    entity_types_checked: PII_PATTERNS.length,
-  };
-}
-
-export default async function handler(req, res) {
-  const startTime = Date.now();
-
+function setCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+  res.setHeader('Access-Control-Max-Age', '86400');
+  res.setHeader('X-Powered-By', 'Zentric Protocol v1.0');
+}
 
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+function sendJson(res, status, payload) {
+  res.statusCode = status;
+  res.setHeader('Content-Type', 'application/json');
+  res.end(JSON.stringify(payload));
+}
 
-  const authHeader = req.headers['authorization'];
-  if (!authHeader?.startsWith('Bearer ')) {
-    return res.status(401).json({
-      error: 'MISSING_AUTHORIZATION',
-      message: 'Authorization header required. Format: "Authorization: Bearer zp_live_..."',
-      docs: 'https://zentricprotocol.com',
-    });
+function extractBearerToken(req) {
+  const header = req.headers?.authorization || req.headers?.Authorization;
+  if (!header || typeof header !== 'string') return null;
+  if (!header.toLowerCase().startsWith('bearer ')) return null;
+  const token = header.slice(7).trim();
+  return token || null;
+}
+
+async function readJsonBody(req) {
+  if (req.body !== undefined && req.body !== null) {
+    if (typeof req.body === 'string') {
+      try {
+        return JSON.parse(req.body);
+      } catch {
+        return { __parseError: true };
+      }
+    }
+    return req.body;
   }
-
-  const rawKey = authHeader.slice(7).trim();
-  if (!rawKey.startsWith('zp_live_') || rawKey.length < 32) {
-    return res.status(401).json({
-      error: 'INVALID_KEY_FORMAT',
-      message: 'API key must start with zp_live_',
+  return new Promise((resolve) => {
+    let raw = '';
+    req.on('data', (chunk) => {
+      raw += chunk;
+      if (raw.length > 1_000_000) {
+        req.destroy();
+        resolve({ __parseError: true });
+      }
     });
-  }
+    req.on('end', () => {
+      if (!raw) return resolve({});
+      try {
+        resolve(JSON.parse(raw));
+      } catch {
+        resolve({ __parseError: true });
+      }
+    });
+    req.on('error', () => resolve({ __parseError: true }));
+  });
+}
 
-  const keyHash = hashKey(rawKey);
+function signReport(report) {
+  const secret = process.env.HMAC_SECRET;
+  if (!secret) return;
+  const payload = `${report.report_id}.${report.sha256}.${report.timestamp_utc}`;
+  report.report_hash = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+}
 
-  const { data: keyRecord, error: keyError } = await supabase
+async function lookupFreeKey(supabase, keyHash) {
+  const { data, error } = await supabase
     .from('free_api_keys')
-    .select('id, email, requests_this_month, month_bucket')
+    .select('key_hash, email, requests_this_month, month_bucket')
     .eq('key_hash', keyHash)
     .maybeSingle();
+  if (error) throw error;
+  return data;
+}
 
-  if (keyError) {
-    console.error('[analyze] Key lookup error:', keyError.message);
-    return res.status(503).json({ error: 'SERVICE_UNAVAILABLE', message: 'Auth service temporarily unavailable.' });
+async function lookupPaidKey(supabase, keyHash) {
+  const { data, error } = await supabase
+    .from('api_keys')
+    .select('key_hash, user_id, tier, requests_this_month, revoked_at')
+    .eq('key_hash', keyHash)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
+async function lookupSubscription(supabase, userId) {
+  const { data, error } = await supabase
+    .from('subscriptions')
+    .select('user_id, status, plan')
+    .eq('user_id', userId)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
+async function authenticate(supabase, apiKey) {
+  const keyHash = hashApiKey(apiKey);
+
+  const freeRow = await lookupFreeKey(supabase, keyHash);
+  if (freeRow) {
+    const month = currentMonthKey();
+    const sameMonth = freeRow.month_bucket === month;
+    const used = sameMonth ? (freeRow.requests_this_month ?? 0) : 0;
+    return {
+      kind: 'free',
+      keyHash,
+      email: freeRow.email,
+      monthBucket: freeRow.month_bucket,
+      currentMonth: month,
+      sameMonth,
+      used,
+      limit: FREE_MONTHLY_LIMIT,
+      tier: 'FREE',
+      plan: 'free',
+    };
   }
 
-  if (!keyRecord) {
-    return res.status(401).json({
-      error: 'INVALID_API_KEY',
-      message: 'API key not found. Get your key at zentricprotocol.com',
-    });
+  const paidRow = await lookupPaidKey(supabase, keyHash);
+  if (!paidRow) return { kind: 'none' };
+
+  if (paidRow.revoked_at) {
+    return { kind: 'revoked' };
   }
 
-  const currentBucket = new Date().toISOString().slice(0, 7);
-  const usedThisMonth = keyRecord.month_bucket === currentBucket ? keyRecord.requests_this_month : 0;
-
-  if (usedThisMonth >= FREE_TIER_LIMIT) {
-    return res.status(429).json({
-      error: 'FREE_TIER_EXHAUSTED',
-      message: `You have used all ${FREE_TIER_LIMIT} free requests for this month.`,
-      upgrade: 'https://zentricprotocol.com#pricing',
-      used: usedThisMonth,
-      limit: FREE_TIER_LIMIT,
-    });
+  const sub = await lookupSubscription(supabase, paidRow.user_id);
+  if (!sub || !ACTIVE_SUB_STATUSES.has(sub.status)) {
+    return {
+      kind: 'inactive_subscription',
+      status: sub?.status ?? 'missing',
+      plan: sub?.plan ?? paidRow.tier ?? null,
+    };
   }
 
-  res.setHeader('X-RateLimit-Limit', String(FREE_TIER_LIMIT));
-  res.setHeader('X-RateLimit-Used', String(usedThisMonth));
-  res.setHeader('X-RateLimit-Remaining', String(FREE_TIER_LIMIT - usedThisMonth - 1));
-
-  const { input, modules = ['integrity', 'privacy'] } = req.body ?? {};
-
-  if (!input || typeof input !== 'string') {
-    return res.status(400).json({
-      error: 'INVALID_REQUEST',
-      message: '"input" field is required and must be a string.',
-    });
-  }
-
-  if (input.length > 32_000) {
-    return res.status(400).json({
-      error: 'INPUT_TOO_LONG',
-      message: 'Input exceeds maximum length of 32,000 characters.',
-    });
-  }
-
-  const reportId = generateReportId();
-  const inputHash = hashContent(input);
-  const timestamp = new Date().toISOString();
-  const results = {};
-
-  if (modules.includes('integrity')) results.integrity = runIntegrityGuard(input);
-  if (modules.includes('privacy')) results.privacy = runPrivacyGuard(input);
-
-  const overallPassed = Object.values(results).every((r) => r.passed);
-  const latencyMs = Date.now() - startTime;
-
-  const report = {
-    id: reportId,
-    timestamp,
-    input_hash: inputHash,
-    modules: results,
-    overall_passed: overallPassed,
-    latency_ms: latencyMs,
-    tier: 'free',
-    requests_used: usedThisMonth + 1,
-    requests_remaining: FREE_TIER_LIMIT - usedThisMonth - 1,
+  const plan = (sub.plan || paidRow.tier || '').toLowerCase();
+  const limit = PLAN_LIMITS[plan] ?? PLAN_LIMITS.growth;
+  return {
+    kind: 'paid',
+    keyHash,
+    userId: paidRow.user_id,
+    tier: (paidRow.tier || plan || 'GROWTH').toUpperCase(),
+    plan,
+    used: paidRow.requests_this_month ?? 0,
+    limit,
   };
+}
 
-  report.report_hash = signReport(report);
+async function incrementFreeKey(supabase, keyHash, sameMonth, currentMonth) {
+  if (!sameMonth) {
+    const { error } = await supabase
+      .from('free_api_keys')
+      .update({ requests_this_month: 1, month_bucket: currentMonth })
+      .eq('key_hash', keyHash);
+    if (error) throw error;
+    return;
+  }
+  const { error } = await supabase.rpc('increment_free_key_usage', { p_key_hash: keyHash });
+  if (error) {
+    const fallback = await supabase
+      .from('free_api_keys')
+      .select('requests_this_month')
+      .eq('key_hash', keyHash)
+      .maybeSingle();
+    const next = (fallback.data?.requests_this_month ?? 0) + 1;
+    const { error: updErr } = await supabase
+      .from('free_api_keys')
+      .update({ requests_this_month: next, month_bucket: currentMonth })
+      .eq('key_hash', keyHash);
+    if (updErr) throw updErr;
+  }
+}
 
-  supabase
-    .rpc('increment_free_key_requests', { p_key_id: keyRecord.id })
-    .then(({ error }) => {
-      if (error) console.warn('[analyze] Failed to increment counter:', error.message);
+async function incrementPaidKey(supabase, keyHash, previousCount) {
+  const { error } = await supabase.rpc('increment_api_key_usage', { p_key_hash: keyHash });
+  if (error) {
+    const { error: updErr } = await supabase
+      .from('api_keys')
+      .update({ requests_this_month: previousCount + 1 })
+      .eq('key_hash', keyHash);
+    if (updErr) throw updErr;
+  }
+}
+
+async function logReportRow(supabase, { reportId, userId, verdict, sha256, latencyMs }) {
+  const { error } = await supabase.from('reports').insert({
+    report_id: reportId,
+    user_id: userId,
+    verdict,
+    sha256,
+    latency_ms: latencyMs,
+  });
+  if (error) throw error;
+}
+
+export default async function handler(req, res) {
+  setCors(res);
+
+  if (req.method === 'OPTIONS') {
+    res.statusCode = 204;
+    return res.end();
+  }
+  if (req.method !== 'POST') {
+    return sendJson(res, 405, { error: 'method_not_allowed', message: 'Use POST' });
+  }
+
+  const apiKey = extractBearerToken(req);
+  if (!apiKey) {
+    return sendJson(res, 401, {
+      error: 'MISSING_API_KEY',
+      message: 'Missing or malformed Authorization header. Use: Authorization: Bearer <api_key>',
     });
+  }
 
-  return res.status(200).json(report);
+  let supabase;
+  try {
+    supabase = getSupabase();
+  } catch (err) {
+    console.error('Supabase init failed:', err);
+    return sendJson(res, 500, { error: 'SERVER_MISCONFIGURED', message: err.message });
+  }
+
+  let auth;
+  try {
+    auth = await authenticate(supabase, apiKey);
+  } catch (err) {
+    console.error('Auth lookup failed:', err);
+    return sendJson(res, 500, { error: 'AUTH_LOOKUP_FAILED', message: 'Internal auth error' });
+  }
+
+  if (auth.kind === 'none') {
+    return sendJson(res, 401, { error: 'INVALID_API_KEY', message: 'Invalid API key' });
+  }
+  if (auth.kind === 'revoked') {
+    return sendJson(res, 401, { error: 'REVOKED_API_KEY', message: 'This API key has been revoked' });
+  }
+  if (auth.kind === 'inactive_subscription') {
+    return sendJson(res, 402, {
+      error: 'SUBSCRIPTION_INACTIVE',
+      message: `Subscription status is "${auth.status}". Update your billing to continue using this API key.`,
+      subscription_status: auth.status,
+      plan: auth.plan,
+      upgrade_url: UPGRADE_URL,
+    });
+  }
+
+  const month = currentMonthKey();
+  if (auth.used >= auth.limit) {
+    res.setHeader('X-RateLimit-Limit', String(auth.limit));
+    res.setHeader('X-RateLimit-Remaining', '0');
+    res.setHeader('X-RateLimit-Reset-Month', month);
+    return sendJson(res, 429, {
+      error: 'RATE_LIMIT_EXCEEDED',
+      message: `Monthly quota of ${auth.limit} requests reached for ${auth.tier} tier`,
+      tier: auth.tier,
+      plan: auth.plan,
+      limit: auth.limit,
+      used: auth.used,
+      reset_month: month,
+      ...(auth.kind === 'free' ? { upgrade_url: UPGRADE_URL } : {}),
+    });
+  }
+
+  const body = await readJsonBody(req);
+  if (body?.__parseError) {
+    return sendJson(res, 400, { error: 'INVALID_BODY', message: 'Invalid JSON body' });
+  }
+  const { input, modules, options } = body || {};
+  if (!input || typeof input !== 'string' || !input.trim()) {
+    return sendJson(res, 400, {
+      error: 'INVALID_INPUT',
+      message: 'input field is required (non-empty string)',
+    });
+  }
+
+  const selectedModules =
+    Array.isArray(modules) && modules.length > 0 ? modules : ['integrity', 'privacy'];
+
+  let result;
+  try {
+    result = analyze(input, selectedModules);
+  } catch (err) {
+    console.error('Detection failed:', err);
+    return sendJson(res, 500, { error: 'DETECTION_FAILED', message: 'Detection engine error' });
+  }
+
+  if (options && typeof options === 'object') {
+    result.echo_options = options;
+  }
+  signReport(result.report);
+
+  res.setHeader('X-RateLimit-Limit', String(auth.limit));
+  res.setHeader('X-RateLimit-Remaining', String(Math.max(0, auth.limit - auth.used - 1)));
+  res.setHeader('X-RateLimit-Reset-Month', month);
+  res.setHeader('X-Zentric-Tier', auth.tier);
+  sendJson(res, 200, result);
+
+  try {
+    const tasks = [];
+    if (auth.kind === 'paid') {
+      tasks.push(
+        logReportRow(supabase, {
+          reportId: result.report.report_id,
+          userId: auth.userId,
+          verdict: result.verdict,
+          sha256: result.report.sha256,
+          latencyMs: result.report.latency_ms,
+        }),
+        incrementPaidKey(supabase, auth.keyHash, auth.used),
+      );
+    } else if (auth.kind === 'free') {
+      tasks.push(incrementFreeKey(supabase, auth.keyHash, auth.sameMonth, auth.currentMonth));
+    }
+    await Promise.all(tasks);
+  } catch (err) {
+    console.error('Post-response logging failed:', err);
+  }
 }
