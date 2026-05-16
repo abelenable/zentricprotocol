@@ -10,6 +10,12 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://zentricprotocol.com/" />
   </url>
   <url>
+    <loc>https://zentricprotocol.com/quickstart</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://zentricprotocol.com/use-cases/prompt-injection-detection</loc>
     <lastmod>2026-05-17</lastmod>
     <changefreq>monthly</changefreq>
