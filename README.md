@@ -124,7 +124,7 @@ Detects prompt injection, jailbreak attempts, and instruction overrides before t
 - 22 catalogued injection signatures
 - 7 supported languages (EN, ES, FR, DE, IT, PT, NL)
 - Multilingual NLP classification layer
-- Mean detection latency: **23.4ms**
+- Mean server-side processing: **23.4ms** *(network latency not included)*
 
 ### 02 · PrivacyGuard
 Identifies and anonymizes PII in prompts and responses. Regional standards treated as first-class entities.
