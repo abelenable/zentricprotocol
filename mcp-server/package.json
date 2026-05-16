@@ -1,8 +1,9 @@
 {
   "name": "zentric-protocol-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MCP server exposing Zentric Protocol's prompt injection + PII detection API as a native tool for MCP-compatible agents (Claude Desktop, Cursor, etc.).",
   "type": "module",
+  "icon": "https://zentricprotocol.com/og.png",
   "bin": {
     "zentric-mcp": "index.js"
   },
@@ -18,12 +19,12 @@
   },
   "keywords": [
     "mcp",
-    "model-context-protocol",
+    "security",
     "prompt-injection",
-    "pii-detection",
+    "pii",
+    "llm",
     "ai-security",
-    "llm-security",
-    "zentric"
+    "agent"
   ],
   "homepage": "https://zentricprotocol.com",
   "bugs": {
