@@ -566,6 +566,8 @@
       <a class="nav-link" href="#protocol">Protocol</a>
       <a class="nav-link" href="#capabilities">Specification</a>
       <a class="nav-link" href="#evidence">Research</a>
+      <a class="nav-link" href="#agents">Agents</a>
+      <a class="nav-link" href="/quickstart">Quickstart</a>
       <a class="nav-link" href="#pricing">Pricing</a>
       <a class="nav-link" href="https://github.com/ZentricProtocol/zentricprotocol" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:6px">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
@@ -866,11 +868,63 @@ curl -X POST https://api.zentricprotocol.com/v1/analyze \
 </section>
 
 <!-- CTA -->
+<!-- AGENTS -->
+<section class="section" id="agents" aria-label="Agentic pipelines">
+  <div class="frame">
+    <div class="section-meta">
+      <span class="section-id">§04 / AGENTS</span>
+      <span class="section-name">Agentic pipelines</span>
+    </div>
+    <div class="section-head reveal">
+      <h2 class="section-title">Your agents are only as safe as the <em>prompts</em> they process.</h2>
+      <p class="section-body">In multi-agent systems, a single injected prompt can cascade across your entire pipeline — triggering unintended actions, leaking data across tool calls, and executing attacker intent at machine speed. Zentric Protocol sits at every hop.</p>
+    </div>
+
+    <div class="bento reveal reveal-d1">
+      <div class="b-6">
+        <div class="b-num">VECTOR · 01</div>
+        <div class="b-title">Tool call guard</div>
+        <div class="b-body">Validate every input before your agent passes it to a tool or sub-agent. Prevent prompt injection from propagating across your pipeline.</div>
+      </div>
+      <div class="b-6">
+        <div class="b-num">VECTOR · 02</div>
+        <div class="b-title">Memory &amp; RAG protection</div>
+        <div class="b-body">Sanitize content before it enters your vector store. Poisoned memories are one of the hardest agent vulnerabilities to detect after the fact.</div>
+      </div>
+    </div>
+
+    <!-- MCP integration snippet -->
+    <div class="reveal reveal-d2" style="margin-top:48px;background:rgba(245,245,245,0.015);border:1px solid var(--rule);border-radius:8px;overflow:hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--rule);background:rgba(245,245,245,0.02)">
+        <span style="font-family:var(--mono);font-size:10px;letter-spacing:0.18em;color:var(--ink-40);text-transform:uppercase">MCP · Claude Desktop config</span>
+        <span style="font-family:var(--mono);font-size:10px;letter-spacing:0.14em;color:var(--kinetic);text-transform:uppercase">◆ Native tool</span>
+      </div>
+      <pre style="margin:0;padding:28px 24px;font-family:var(--mono);font-size:12px;line-height:1.8;color:var(--ink-60);overflow-x:auto"><code><span style="color:var(--ink-40)">// In Claude Desktop config — add the Zentric MCP server</span>
+{
+  <span style="color:#98C379">"mcpServers"</span>: {
+    <span style="color:#98C379">"zentric"</span>: {
+      <span style="color:#98C379">"command"</span>: <span style="color:#98C379">"npx"</span>,
+      <span style="color:#98C379">"args"</span>: [<span style="color:#98C379">"zentric-protocol-mcp"</span>],
+      <span style="color:#98C379">"env"</span>: { <span style="color:#98C379">"ZENTRIC_API_KEY"</span>: <span style="color:#98C379">"zp_live_your_key"</span> }
+    }
+  }
+}</code></pre>
+      <div style="padding:16px 24px;border-top:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+        <span style="font-size:12px;color:var(--ink-40);">Native MCP server. Works with Claude Desktop, Cursor, and any MCP-compatible agent. <strong style="color:var(--ink-60);">2,000 requests free.</strong></span>
+        <a href="#api-access" class="btn btn-primary" style="font-size:12px;padding:8px 16px;">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l6 3v4c0 3-2.5 5.5-6 6-3.5-.5-6-3-6-6V4l6-3z"/></svg>
+          Get your API key →
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- PRICING -->
 <section class="section" id="pricing">
   <div class="frame">
     <div class="section-meta">
-      <span class="section-id">§04 / PRICING</span>
+      <span class="section-id">§05 / PRICING</span>
       <span class="section-name">Access</span>
     </div>
     <div class="section-head reveal">
@@ -1010,7 +1064,7 @@ curl -X POST https://api.zentricprotocol.com/v1/analyze \
 <section class="section" id="faq" aria-label="Frequently asked questions about Zentric Protocol">
   <div class="frame">
     <div class="section-meta">
-      <span class="section-id">§05 / FAQ</span>
+      <span class="section-id">§06 / FAQ</span>
       <span class="section-name">Common questions</span>
     </div>
     <div class="section-head reveal">

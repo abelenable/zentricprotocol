@@ -257,6 +257,34 @@ export ZENTRIC_KEY=<span class="k">"zp_live_your_key_here"</span></pre>
         <p>A <code class="inline-code">BLOCKED</code> response means the prompt should <strong>not</strong> reach your model. <code class="inline-code">ANONYMIZED</code> means PII was found — forward the <code class="inline-code">anonymized_input</code> field instead of the raw prompt. <code class="inline-code">CLEARED</code> is the happy path.</p>
       </section>
 
+      <section class="step">
+        <div class="step-num">Step 04</div>
+        <h2>Use it in your agent pipeline</h2>
+        <p>Drop the same call into any agent framework — wrap it as a tool the model can invoke before it acts on external content (RAG retrievals, tool outputs, user-uploaded files, sub-agent answers). The example below registers Zentric as a LangChain <code class="inline-code">DynamicTool</code>:</p>
+        <div class="codeblock">
+          <div class="codeblock-head"><span>SDK · LangChain (JavaScript)</span><span class="badge">◆ AGENT TOOL</span></div>
+<pre><span class="c">// As a LangChain tool</span>
+<span class="k">import</span> { DynamicTool } <span class="k">from</span> <span class="k">"langchain/tools"</span>;
+
+<span class="k">const</span> zentricGuard = <span class="k">new</span> <span class="n">DynamicTool</span>({
+  name: <span class="k">"zentric_guard"</span>,
+  description: <span class="k">"Validates a prompt for injection attacks and PII before sending to an LLM. Always call this before processing user input."</span>,
+  func: <span class="k">async</span> (input) =&gt; {
+    <span class="k">const</span> res = <span class="k">await</span> fetch(<span class="k">"https://api.zentricprotocol.com/v1/analyze"</span>, {
+      method: <span class="k">"POST"</span>,
+      headers: {
+        <span class="k">"Authorization"</span>: <span class="k">`Bearer ${process.env.ZENTRIC_API_KEY}`</span>,
+        <span class="k">"Content-Type"</span>: <span class="k">"application/json"</span>
+      },
+      body: JSON.stringify({ input, modules: [<span class="k">"integrity"</span>, <span class="k">"privacy"</span>] })
+    });
+    <span class="k">return await</span> res.json();
+  }
+});</pre>
+        </div>
+        <p><strong>Or use the native MCP server</strong> — add Zentric Protocol to Claude Desktop or any MCP-compatible agent in 2 minutes. See <a href="https://www.npmjs.com/package/zentric-protocol-mcp" style="color:var(--kinetic);text-decoration:underline">zentric-protocol-mcp</a> on npm, or copy the Claude Desktop config block from the <a href="/#agents" style="color:var(--kinetic);text-decoration:underline">Agents section</a> on the homepage.</p>
+      </section>
+
       <div class="next-steps">
         <div class="next-steps-label">Next steps</div>
         <div class="next-grid">
